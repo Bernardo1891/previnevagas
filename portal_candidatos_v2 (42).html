@@ -1,0 +1,3318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Vagas Previne</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:      #0D1B2A;
+  --ink2:     #1B2F45;
+  --steel:    #243B55;
+  --blue:     #1565C0;
+  --blue2:    #1976D2;
+  --sky:      #42A5F5;
+  --gold:     #F59E0B;
+  --gold2:    #FCD34D;
+  --emerald:  #10B981;
+  --rose:     #EF4444;
+  --slate:    #64748B;
+  --mist:     #94A3B8;
+  --fog:      #CBD5E1;
+  --cloud:    #F1F5F9;
+  --white:    #FFFFFF;
+  --text:     #0F172A;
+  --subtext:  #475569;
+  --r:        16px;
+  --r2:       12px;
+  --s1: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --s2: 0 8px 40px rgba(13,27,42,.18);
+  --s3: 0 24px 80px rgba(13,27,42,.28);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--ink);
+  min-height: 100vh;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG ── */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 5%,  rgba(21,101,192,.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 85% 90%, rgba(245,158,11,.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(16,185,129,.07) 0%, transparent 60%);
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── TOPBAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(13,27,42,.85);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue2), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 800; color: #fff;
+  box-shadow: 0 4px 14px rgba(21,101,192,.45);
+}
+.brand-name { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2; }
+.brand-sub  { font-size: 10.5px; color: var(--mist); font-weight: 400; }
+
+.topbar-nav { display: flex; gap: 6px; }
+.tb-btn {
+  padding: 7px 18px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all .18s;
+}
+.tb-ghost {
+  background: transparent; color: var(--mist);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.tb-ghost:hover { color: #fff; border-color: rgba(255,255,255,.28); }
+.tb-solid {
+  background: var(--blue2); color: #fff;
+  box-shadow: 0 2px 12px rgba(25,118,210,.42);
+}
+.tb-solid:hover { background: #1e88e5; }
+.tb-gold {
+  background: var(--gold); color: var(--ink);
+  box-shadow: 0 2px 12px rgba(245,158,11,.38);
+}
+.tb-gold:hover { background: #f6ab1a; }
+
+/* ── PAGE SHELL ── */
+.page-shell {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 98px 20px 60px;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; width: 100%; animation: fadeUp .32s ease; }
+.screen.show { display: flex; flex-direction: column; align-items: center; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border-radius: var(--r);
+  box-shadow: var(--s2);
+  width: 100%; max-width: 500px;
+  overflow: hidden;
+}
+.card.wide { max-width: 820px; }
+.card.xl   { max-width: 1060px; }
+
+.card-top {
+  background: linear-gradient(140deg, var(--ink) 0%, var(--steel) 100%);
+  padding: 28px 32px 24px;
+  position: relative; overflow: hidden;
+}
+.card-top::before {
+  content: '';
+  position: absolute; bottom: -50px; right: -50px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(66,165,245,.2), transparent 70%);
+  border-radius: 50%;
+}
+.card-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(66,165,245,.18); border: 1px solid rgba(66,165,245,.3);
+  color: var(--sky); font-size: 10.5px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: .5px;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.card-top h1 {
+  font-size: 21px; font-weight: 800; color: #fff; margin-bottom: 5px;
+  line-height: 1.2;
+}
+.card-top p { font-size: 13px; color: var(--mist); }
+
+.card-body { padding: 28px 32px 32px; }
+
+/* ── FORM ── */
+.fld { margin-bottom: 16px; }
+.fld label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--slate); text-transform: uppercase; letter-spacing: .4px;
+  margin-bottom: 6px;
+}
+.fld input, .fld select, .fld textarea {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--fog); border-radius: var(--r2);
+  font-size: 13.5px; color: var(--text);
+  background: var(--cloud);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+  outline: none; appearance: none;
+}
+.fld input:focus, .fld select:focus, .fld textarea:focus {
+  border-color: var(--blue2);
+  box-shadow: 0 0 0 3px rgba(25,118,210,.13);
+  background: #fff;
+}
+.fld input::placeholder, .fld textarea::placeholder { color: var(--mist); }
+.fld select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M.5.5l5 5 5-5' stroke='%2394A3B8' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center;
+  padding-right: 34px; cursor: pointer;
+}
+.fld textarea { resize: vertical; min-height: 80px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.grid3 { display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 13px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 22px; border: none; border-radius: var(--r2);
+  font-size: 13.5px; font-weight: 700; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all .18s; width: 100%;
+}
+.btn-blue {
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  color: #fff; box-shadow: 0 4px 18px rgba(21,101,192,.38);
+}
+.btn-blue:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(21,101,192,.52); }
+.btn-gold {
+  background: linear-gradient(135deg, #e67e00, var(--gold));
+  color: var(--ink); box-shadow: 0 4px 18px rgba(245,158,11,.35);
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245,158,11,.5); }
+.btn-ghost {
+  background: transparent; color: var(--subtext);
+  border: 1.5px solid var(--fog);
+}
+.btn-ghost:hover { border-color: var(--blue2); color: var(--blue2); background: rgba(25,118,210,.04); }
+.btn-red {
+  background: linear-gradient(135deg, #c62828, var(--rose));
+  color: #fff; box-shadow: 0 4px 18px rgba(239,68,68,.32);
+}
+.btn-emerald {
+  background: linear-gradient(135deg, #059669, var(--emerald));
+  color: #fff; box-shadow: 0 4px 18px rgba(16,185,129,.32);
+}
+.btn-sm { padding: 8px 16px; font-size: 12px; width: auto; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 6px; }
+.btn-row .btn:only-child { width: 100%; }
+
+/* ── ALERTS ── */
+.alert {
+  display: none; align-items: flex-start; gap: 9px;
+  padding: 11px 14px; border-radius: var(--r2);
+  font-size: 13px; font-weight: 500; margin-bottom: 14px;
+}
+.alert.err  { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+.alert.ok   { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+.alert.info { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; }
+.alert.show { display: flex; }
+
+/* ── DIVIDER ── */
+.or { display: flex; align-items: center; gap: 12px; color: var(--mist); font-size: 12px; margin: 18px 0; }
+.or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--fog); }
+
+/* ── LINK ── */
+.link-row { text-align: center; margin-top: 16px; font-size: 13px; color: var(--subtext); }
+.link-row a { color: var(--blue2); font-weight: 600; cursor: pointer; text-decoration: none; }
+.link-row a:hover { text-decoration: underline; }
+
+/* ── PROGRESS ── */
+.prog-wrap { margin: 18px 0 6px; }
+.prog-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--slate); margin-bottom: 7px; }
+.prog-bar  { height: 7px; background: var(--fog); border-radius: 10px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--blue), var(--sky)); transition: width .5s ease; }
+
+/* ── DASH HEADER ── */
+.dash-hdr {
+  background: linear-gradient(140deg, var(--ink) 0%, var(--steel) 100%);
+  padding: 26px 32px;
+  position: relative; overflow: hidden;
+}
+.dash-hdr::after {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(245,158,11,.15), transparent 65%);
+  border-radius: 50%;
+}
+.dash-hi   { font-size: 12px; color: var(--mist); margin-bottom: 3px; }
+.dash-name { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 13px; border-radius: 20px; font-size: 11.5px; font-weight: 700;
+}
+.status-pill.pending { background: rgba(245,158,11,.18); color: var(--gold2); border: 1px solid rgba(245,158,11,.3); }
+.status-pill.approved { background: rgba(16,185,129,.18); color: #6EE7B7; border: 1px solid rgba(16,185,129,.3); }
+.blink { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── TABS ── */
+.tabs-row {
+  display: flex;
+  background: var(--cloud);
+  border-bottom: 2px solid var(--fog);
+  padding: 0 32px;
+}
+.tab-btn {
+  padding: 13px 18px; font-size: 13px; font-weight: 600;
+  color: var(--mist); cursor: pointer;
+  border: none; background: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -2px;
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: color .18s;
+}
+.tab-btn.on { color: var(--blue2); border-bottom-color: var(--blue2); }
+.tab-btn:hover:not(.on) { color: var(--text); }
+
+.tab-pane { display: none; padding: 26px 32px 32px; }
+.tab-pane.on { display: block; animation: fadeUp .22s ease; }
+
+/* ── SECTION TITLE ── */
+.sec-title {
+  font-size: 13px; font-weight: 800; color: var(--ink2);
+  text-transform: uppercase; letter-spacing: .6px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px;
+}
+.sec-title::after { content: ''; flex: 1; height: 1.5px; background: var(--fog); }
+
+/* ── INFO TABLE ── */
+.info-tbl { width: 100%; border-collapse: collapse; }
+.info-tbl tr { border-bottom: 1px solid var(--fog); }
+.info-tbl tr:last-child { border-bottom: none; }
+.info-tbl td { padding: 10px 4px; font-size: 13px; vertical-align: top; }
+.info-tbl td:first-child {
+  font-weight: 700; color: var(--slate); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .3px; width: 40%; padding-right: 12px;
+}
+.info-tbl td:last-child { color: var(--text); font-weight: 500; }
+
+/* ── DOC UPLOAD GRID ── */
+.doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.doc-slot {
+  border: 2px dashed var(--fog); border-radius: 14px;
+  padding: 20px 16px; text-align: center; cursor: pointer;
+  transition: all .2s; background: var(--cloud); position: relative;
+}
+.doc-slot:hover { border-color: var(--blue2); background: #EFF6FF; }
+.doc-slot.done  { border-color: var(--emerald); border-style: solid; background: #ECFDF5; }
+.doc-slot input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.doc-ico  { font-size: 28px; margin-bottom: 8px; }
+.doc-name { font-size: 11.5px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px; }
+.doc-hint { font-size: 11px; color: var(--mist); }
+.doc-slot.done .doc-hint { color: var(--emerald); font-weight: 600; }
+.doc-tick {
+  display: none; position: absolute; top: 8px; right: 8px;
+  width: 20px; height: 20px; background: var(--emerald);
+  border-radius: 50%; color: #fff; font-size: 11px;
+  align-items: center; justify-content: center;
+}
+.doc-slot.done .doc-tick { display: flex; }
+
+/* ── CODE INPUT ── */
+.code-gate {
+  background: linear-gradient(135deg, #EFF6FF, #F0FDF4);
+  border: 1.5px solid var(--fog); border-radius: 14px;
+  padding: 22px; text-align: center; margin-bottom: 20px;
+}
+.code-gate h3 { font-size: 14px; font-weight: 800; color: var(--ink2); margin-bottom: 6px; }
+.code-gate p  { font-size: 12.5px; color: var(--subtext); margin-bottom: 16px; line-height: 1.5; }
+.code-input-row { display: flex; gap: 8px; max-width: 340px; margin: 0 auto; }
+.code-input-row input {
+  flex: 1; padding: 11px 14px; border-radius: var(--r2);
+  border: 1.5px solid var(--fog); font-size: 15px; font-weight: 700;
+  text-align: center; letter-spacing: 3px; background: #fff; outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text);
+}
+.code-input-row input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(25,118,210,.12); }
+
+/* ── HR PANEL ── */
+.hr-top {
+  background: linear-gradient(140deg, #0D1B2A 0%, #1A3353 100%);
+  padding: 26px 32px;
+  position: relative; overflow: hidden;
+}
+.hr-top::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(245,158,11,.18), transparent 65%);
+  border-radius: 50%;
+}
+.hr-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(245,158,11,.2); border: 1px solid rgba(245,158,11,.35);
+  color: var(--gold2); font-size: 10px; font-weight: 800;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: .5px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.hr-top h1 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.hr-top p  { font-size: 12.5px; color: var(--mist); }
+
+/* ── CANDIDATE TABLE ── */
+.cand-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.cand-table th {
+  text-align: left; padding: 10px 14px;
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--slate); background: var(--cloud);
+  border-bottom: 2px solid var(--fog);
+}
+.cand-table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--fog);
+  color: var(--text); font-weight: 500;
+}
+.cand-table tr:hover td { background: #F8FAFC; }
+.cand-table tr:last-child td { border-bottom: none; }
+
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700;
+}
+.tag-blue   { background: #DBEAFE; color: #1E40AF; }
+.tag-gold   { background: #FEF3C7; color: #92400E; }
+.tag-green  { background: #D1FAE5; color: #065F46; }
+.tag-red    { background: #FEE2E2; color: #991B1B; }
+
+/* ── CODE CHIP ── */
+.code-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--cloud); border: 1.5px solid var(--fog);
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--blue);
+  font-family: monospace;
+}
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: #fff; border: 1.5px solid var(--fog); border-radius: var(--r2);
+  padding: 16px; text-align: center; box-shadow: var(--s1);
+}
+.stat-n { font-size: 26px; font-weight: 800; color: var(--blue); font-family: 'Instrument Serif', serif; }
+.stat-l { font-size: 11px; font-weight: 600; color: var(--slate); text-transform: uppercase; letter-spacing: .4px; margin-top: 3px; }
+
+/* ── MODAL ── */
+.modal-wrap {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(13,27,42,.78); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-wrap.open { display: flex; animation: fadeIn .22s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.modal-box {
+  background: #fff; border-radius: 20px;
+  padding: 40px 36px; max-width: 420px; width: 100%;
+  text-align: center; animation: fadeUp .28s ease;
+  box-shadow: var(--s3);
+}
+.modal-ico {
+  width: 70px; height: 70px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; margin: 0 auto 18px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.15);
+}
+.modal-ico.green { background: linear-gradient(135deg, #059669, var(--emerald)); }
+.modal-ico.blue  { background: linear-gradient(135deg, var(--blue), var(--sky)); }
+.modal-ico.gold  { background: linear-gradient(135deg, #e67e00, var(--gold)); }
+.modal-box h2 { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.modal-box p  { font-size: 13.5px; color: var(--subtext); line-height: 1.65; margin-bottom: 22px; }
+
+/* ── FILE UPLOAD BTN ── */
+.file-upload-btn {
+  position: relative; display: flex; align-items: center;
+  border: 1.5px dashed var(--fog); border-radius: var(--r2);
+  padding: 12px 16px; background: var(--cloud); cursor: pointer;
+  transition: border-color .18s, background .18s; gap: 10px;
+}
+.file-upload-btn:hover { border-color: var(--blue2); background: #EFF6FF; }
+.file-upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.file-upload-btn .ico { font-size: 20px; }
+.file-upload-btn .txt { font-size: 13px; color: var(--subtext); font-weight: 500; }
+.file-upload-btn .txt strong { display: block; color: var(--text); font-size: 13px; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--mist); }
+.empty-state .e-ico { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 13.5px; }
+
+/* ── SEARCH ── */
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 18px; align-items: center;
+}
+.search-bar input {
+  flex: 1; padding: 10px 14px; border: 1.5px solid var(--fog);
+  border-radius: var(--r2); font-size: 13px; background: var(--cloud);
+  font-family: 'Plus Jakarta Sans', sans-serif; outline: none; color: var(--text);
+  transition: border-color .18s;
+}
+.search-bar input:focus { border-color: var(--blue2); background: #fff; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  #topbar{padding:0 16px}
+  .card-body,.card-top,.dash-hdr,.hr-top,.tab-pane{padding-left:18px;padding-right:18px}
+  .tabs-row{padding:0 18px}
+  .grid2,.grid3,.doc-grid,.stats-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAoAKUDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAcFBgIECAMB/8QAQxAAAQMDAwEFBQQFCQkAAAAAAQIDBAUGEQAHEiETFDFBUQgiYXGBFRYjMkJTgpGSFyQ3OENzdLLCMzRSVnKUobHB/8QAGgEAAgMBAQAAAAAAAAAAAAAAAAMBAgQFBv/EACsRAAICAQQBAwMDBQAAAAAAAAECAAMRBBIhMQUTQVEiYYEycZEUobHB4f/aAAwDAQACEQMRAD8A7D7qn9a9/Hqg7uX9T7IgiPHcVLrT6csRi57rY/43MeA9B4nXpvBuTDsuB3OJ2cmtvoyywTkND9Yv4eg89K/ZKy0X9V6jdV2OuVBlt/iULV/vD2Mnlj9FII90evoNZ7LTnYnc5Ws1rGz+m0/6z7/En9styqzPjCTccgSWVvqQpTLYQWx0wQB4gfv054yI8mO3IjynHWnE8kLSvII0v92INs2nZgmxaTBiBMptAQy2EKUFHCuOPMJyr9nUTZtzv25NVDkKU/TlL94DxRn9NP06kaeikKAe5uoV661Vzk/MbXdU/rXv49QlbuS1qHNEKr3HFgySgLDT8kJVxPgcHy6HU/FkMyo7ciO6l1lxPJC0nII1ztvXT4tW9oSgUyc2XIspqM08kKIJSVryMjw1S1ygyIjyGqfTVBkAJJA5+8ctOuyzajJEaFdcB95RwlCZick+g9dSdamUqiwTOq1UTBihQSXXnglOT4DJ0mt5NorPolhz67RmX4cqCEuAF9S0uAqAKSFHoevQjUPXatNrHssxHqg8t95ioIjhxZypSUOEJyfM4wPppZtZchhzjMxP5K+gvXco3BSwweDHEm+rDUoJF5U0knA/nidWKEYc6MiTCnd5YX+Vxp4LSfkR00m9sNpbKuPbek1WowZHfZccqdebkqSeXIjIGceXpqF9mx+VSdza9a0WYqVS0IeOQfcKm3AlLgHgCQcHHjqVtbI3DuTT5DUB6hcoxZ1gn4zyDHDOvGyoM16FMuyCxJYWW3Wly0hSFDxBHkdYMXtYz77bDN309x1xQQhCZaSVKJwAPrpAsUSgXBv9cdOuWUItPMuUsud4DPvhQwOR6eZ6aZtC2l2ucqjDtKqzsuVHWl9KGqmhwjioEEgeWcaqtjt0BKUa/WahjsVcAkck54jBptat6pVV+lQK6zJnx+XbR23wXEcTg5HiMHpqVVGQlJUp50ADJJX4aQV/D7g+0PTLkR+HAqxBfI8Pe/Ddz9eK9M7fO4fu7trU5LTnGTKR3SOQevJzoT9E8j9NMFnBz7TXVr/otNowayc/t2D+ZJwrmtSbDmTIlyRX48FIVKdRJBSyDnBUfLwOtylVKi1amLqdNq6JcJsqC32ngpCSkZVk/DSatS3RRPZgrsx1vhIqsRyUvI68OgbH8Iz+1qY9nz+gyqf30z/INVW1iQCPbMTR5C17ER1A3LujKt+sW/cCXVUSuM1AM47Tu8gL4Z8M49cazr1SotBjIk1qsNwGXF8ELfeCApWM4BPngHXI219xVSyqvFuiOw65TC6Ik0J/K4kjkUf9QHvD5fPTi9qSdEqe2tEqEF5D8WRNS404k9FJLSyDqq35Qn3ERR5o26R7duHX2/wY15lTokOiorUqsNs01aUqTKW+A2Qr8pz8cjUP9+7C/wCcqb/3idUXcr+rDTf8HB/0are22322dasmm1OvVkR6k+hRfb+00NcSFED3T1HQDUm1t2B8RtvkNR6wqqC8qG5OI5Ylx0OqhSqFXY88NHDxZeC+BPhn0z10ahbUsi2LViLdtt99+PPwtTipAdSrjkApI6eZ0acpOOZ1KDY1YNoG77dTmO6FVRdyVFVc7X7TMhfeu08QvPh8vTyxjXRXs7dtN2tZEeWYz8eW80FJSFAjII5J8/H5/HUhvHtpFvKEahTw3GrrCMNunol9I/s1/wDxXl8tL72d7ij2rWK1bFyvilOrcStCZR4BLqcpUkk9ASOJHrjWNENVvPRnntNp20GuHqH6Wzg/35+8g97axUHbzkUurSkVZUEJS0AC2w2VJBIDYOSrrgkqOphvvIgwUzUBExMRpMhOMcVAeBHkQOOR66wuOBEqW5dUuZyXGlMIlDujLKwsLUhKQFLI6BIIzjxPngas1mWxKuKYXnlLbhIVl57zWfNKfj6ny10B1mekyG6lo2aVMMOclZWYYWnss+AX15Y/8Z0rd9majI35osejyExqi4xHTFeV4Nuc14Ueh/8AWujIMWPCiNxYrSWmW08UISOgGlbfdnN1HeSh3K5ctIhd17DEJ9zD7vFaj7oz1znA0i9SwwJz/Kad76VRBn6h/ErtV2u3VudKIVz3tFcgBYUpCeShkefAJSCR8TqS3wt+Da2wzFCp3Ix4sphIUv8AMtRWSpR+JJJ06NVDd205V6Wcuhw5bMR1Uht3tHUkpwk5x01VqgFOO4u/xqJRZ6YJdgRknJ/bmIqn2jfx2hbuOl3dNNMEQuilsuuJKWgo8gMHHQAnGr/7KsO3fulJqNPQo1hTvYz1OKyUgdUBPogg5+Jz6av9gUhu2LRpNpzpsWRLZjrTxScdqkK94hJ6kDkAfnqo2BthVbL3Am1elVaKaHLK0rhKQrmEE8kgHwyk9AfTOqLUUZTiZaPHtprabVXPGGyc4OOxn+OIqI9qQr03/uOhVB99hhUuU7zZxyylQx4gjz059uNpaJY9fcrFOqE6Q85HUwUPcOOCQc9AOvTVKr2zFxVS8KrclGuyHDE6W66hTPaBaQpXVJUk/Q/LWvF2kvgVJLH8pSXHmSh1xgSnisJz5p5ZAODqqKVOSuZn02msosLNp9zbiQciW72m7e+2Nu11FpGZFJdEgEePZn3Vj9xB/Z0pbjuOVuZ9xLSZWpTqUJbmnH9rniVH1w2kq/a103WH6PIC6FUJsRLs5pTYjOPJDjiVAg4STk+eljtHs6/Zl2rrdQqcacltlbcVDbagUFRxyOfPj0+p1e2tmbjo9zV5HQW26gGv9L4Dfg5/5LXu9HZibO16JHQEMs00ttpHkkAAD9w1TvZ8/oMqn99M/wAg0w9yIArVnVKgNzYkWVUY6mWDIXxBUcfU/TUJtdZNRtbbqXbU+XFekvuPqDjPIoAcTgeIB1dlPqZ+01W0OdctgH07CPzmLH2dbcgXXttdFDqKfwn5LfFYHvNLDfurHxB0ubsl1yh0KRt1W2yfs2od4YUT+UFKgQn1QrkFD0yddF7HWQ/YcOqUqZVoU6S+42+UMZBbTxKQVA9epBwfgdae++39Lu37Pl/bFPo1VSrsUOylhKZDZ/QxkEkE5GPU+ukmljWMdzlWeKubQptGLACCPkE9f7Eh9yv6sVN/wcH/AEar22uylv3VZFNr8yp1Fl+WhSlobCOIwsp6ZBPlpl3NZUmu7SR7Li1OImVFajsOP4KkBTXHIwOo8PD46XsXZC+ojCY8S/Ex2UflbacfQlPyAOBqXQ7gSueIzU6NzertTvXYB2O42qXQo9tW1S6DEddeYhNFtC3MclDOeuOnno1SLQsC6LaVL+2LqVU+88Oyy46rs+PLP5ifHkPD00a0KTjrE7end/SGa9v2yOI4NLveLbSHesLvsPso1bZRhp4jCXkj9Bz4eh8vlo0allDDBjr6EvQo4yDKhtfthX40URK/HRAZQ+pSwh1K1LHTonj6+undCjR4cVuLFaS0y2nihCR0A0aNCjaoAhRStNYRehPXSnuek1NreZ+tJo1TlRXYEVph2PT4z7RdQp/PNxz8RriVoOUYz9NGjVo2QFzS75tmjUlEup1uQupsQxJS5KbQ73wtvF5DbgT7iU8ULKQDkJwPE69qY5uHUYr82m16rzmX6aFU2UxHR3eQgsJGSVkFt7teauqPQeHgaNRCb9Xte8lXFNXGqFdU3TY800maX2y64pbMZaG1Ej30l1LgwR5YJxjWCBufPuSQy8xWqZAmPMIdLbzawxxkI7RTayTgKZKjgJ6eHUjOjRqYTZpadwot30Nr7PqLdMZkrRLUFtqaeYWt/wB5SQRxUk9icgFRBJ9QcaZS7np+8kurN0BS2J85bbskoHZxYvBPvpVyy4XezbBB/wBmQcDBOjRohPj9Lual3VUEQbWamVOdXDMarL8dt9kxVJASlSyoLZU0OgABB49PzHWhEb3Nj0aG847c02cie13mC4200l1XHDmH0uEpa5HkDjj0xxwdGjRCeU6i3jFep7MOjVmU7ArMiT3qStqRyQZaVcUhR6ILJKgfHIIABAOrZZKL5Eypib9pJd7isLVUVtqYVO5HgY4R1DPHxzj9HpnOjRohKaimbiJXJntNXSz2iIbVRdcUw5LWUJf7QRwlQHZh1aDjIJBOOnTU1uhaF0XHBoKIiI82ZHoc1t+RPgtrC3loaASUFWG1rKVYUMhJ9Ro0aITWjRNwIUmnt0aDVWmC86hmPIKEttI7FsNuyHEqytSSCCkg8uvUHGvV1q+hSYgiovHtuwcT+I8z2gqOEcVOEnHdfzeHTx6eGjRohJKgLvFmtVpqrRKhMZEgKjSZLyGUqyVckNt5UOCRxAUMcgRkAg6NGjRCf//Z" alt="Previne" style="height:38px;width:auto;border-radius:8px;object-fit:contain;background:#fff;padding:3px 6px;">
+    <div>
+      <div class="brand-name">Portal de Vagas Previne</div>
+      <div class="brand-sub">Engenharia &amp; Gestão de Riscos</div>
+    </div>
+  </div>
+  <div class="topbar-nav" id="nav-public">
+    <button class="tb-btn tb-ghost" onclick="go('login')">Entrar</button>
+    <button class="tb-btn tb-solid" onclick="go('register')">Candidatar-se</button>
+    <button class="tb-btn tb-gold" onclick="go('hr-login')">Acesso RH</button>
+  </div>
+  <div class="topbar-nav" id="nav-user" style="display:none">
+    <span style="color:var(--mist);font-size:12.5px;margin-right:8px" id="nav-username"></span>
+    <button class="tb-btn tb-ghost" onclick="logout()">Sair</button>
+  </div>
+  <div class="topbar-nav" id="nav-hr" style="display:none">
+    <span style="color:var(--gold2);font-size:12.5px;font-weight:700;margin-right:8px">🔑 Painel RH</span>
+    <button class="tb-btn tb-ghost" onclick="logoutHR()">Sair</button>
+  </div>
+</div>
+
+<div class="page-shell">
+
+  <!-- ════════ SCREEN: LOGIN ════════ -->
+  <div class="screen show" id="s-login">
+    <div class="card">
+      <div class="card-top">
+        <div class="card-badge">🔐 Acesso Candidato</div>
+        <h1>Bem-vindo ao Portal</h1>
+        <p>Faça login com seu CPF e senha para acessar seu perfil</p>
+      </div>
+      <div class="card-body">
+        <div class="alert err" id="login-err"></div>
+        <div class="fld">
+          <label>CPF</label>
+          <input id="l-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)">
+        </div>
+        <div class="fld">
+          <label>Senha</label>
+          <input id="l-pass" type="password" placeholder="Sua senha">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="doLogin()">Entrar no Portal →</button>
+        </div>
+        <div class="or">ou</div>
+        <button class="btn btn-ghost" onclick="go('register')">Criar conta de candidato</button>
+        <div class="link-row">
+          <a onclick="go('forgot')">Esqueci minha senha</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: FORGOT PASSWORD ════════ -->
+  <div class="screen" id="s-forgot">
+    <div class="card">
+      <div class="card-top">
+        <div class="card-badge">🔑 Recuperação</div>
+        <h1>Recuperar Senha</h1>
+        <p>Informe seu CPF e e-mail cadastrado. Simularemos o envio da senha.</p>
+      </div>
+      <div class="card-body">
+        <div class="alert err" id="forgot-err"></div>
+        <div class="alert ok"  id="forgot-ok"></div>
+        <div class="fld">
+          <label>CPF</label>
+          <input id="f-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)">
+        </div>
+        <div class="fld">
+          <label>E-mail cadastrado</label>
+          <input id="f-email" type="email" placeholder="seu@email.com">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="doForgot()">Enviar senha por e-mail</button>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="go('login')">← Voltar ao login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: REGISTER ════════ -->
+  <div class="screen" id="s-register">
+    <div class="card">
+      <div class="card-top">
+        <div class="card-badge">✦ Novo Cadastro — Etapa 1/2</div>
+        <h1>Criar Conta</h1>
+        <p>Dados de acesso ao portal</p>
+      </div>
+      <div class="card-body">
+        <div class="alert err" id="reg-err"></div>
+        <div class="fld">
+          <label>CPF</label>
+          <input id="r-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)">
+        </div>
+        <div class="fld">
+          <label>E-mail</label>
+          <input id="r-email" type="email" placeholder="seu@email.com">
+        </div>
+        <div class="grid2">
+          <div class="fld">
+            <label>Senha</label>
+            <input id="r-pass" type="password" placeholder="Mín. 6 caracteres">
+          </div>
+          <div class="fld">
+            <label>Confirmar Senha</label>
+            <input id="r-pass2" type="password" placeholder="Repita a senha">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="doRegister()">Continuar → Dados da Candidatura</button>
+        </div>
+        <div class="link-row">Já tem conta? <a onclick="go('login')">Fazer login</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: PROFILE FORM ════════ -->
+  <div class="screen" id="s-profile">
+    <div class="card wide">
+      <div class="card-top">
+        <div class="card-badge">✦ Etapa 2/2 — Candidatura</div>
+        <h1>Dados da Candidatura</h1>
+        <p>Preencha todas as informações para concluir sua inscrição</p>
+      </div>
+      <div class="card-body">
+        <div class="alert err" id="prof-err"></div>
+
+        <div class="sec-title">Identificação Pessoal</div>
+        <div class="fld">
+          <label>Nome Completo</label>
+          <input id="p-nome" type="text" placeholder="Seu nome completo">
+        </div>
+        <div class="grid2">
+          <div class="fld">
+            <label>CPF</label>
+            <input id="p-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)">
+          </div>
+          <div class="fld">
+            <label>Telefone / WhatsApp</label>
+            <input id="p-tel" type="text" placeholder="(00) 00000-0000" maxlength="15" oninput="mPhone(this)">
+          </div>
+        </div>
+
+        <div class="sec-title">Endereço</div>
+        <div class="fld">
+          <label>Rua, Número e Complemento</label>
+          <input id="p-rua" type="text" placeholder="Ex: Rua das Flores, 123, Apto 4B">
+        </div>
+        <div class="grid3">
+          <div class="fld">
+            <label>Bairro</label>
+            <input id="p-bairro" type="text" placeholder="Bairro">
+          </div>
+          <div class="fld">
+            <label>Cidade</label>
+            <input id="p-cidade" type="text" placeholder="Cidade">
+          </div>
+          <div class="fld">
+            <label>Estado</label>
+            <select id="p-estado">
+              <option value="">UF</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
+        </div>
+        <div class="fld" style="max-width:200px">
+          <label>CEP</label>
+          <input id="p-cep" type="text" placeholder="00000-000" maxlength="9" oninput="mCEP(this)">
+        </div>
+
+        <div class="sec-title">Candidatura</div>
+        <div class="fld">
+          <label>Função Desejada</label>
+          <select id="p-funcao">
+            <option value="">Selecione a função...</option>
+            <option>Analista de T. Seg.</option>
+            <option>Resg. (Resgatista)</option>
+            <option>Enfer. (Enfermeiro)</option>
+            <option>T. Enf (Técnico de Enfermagem)</option>
+            <option>Ob. Seg (Observador de Segurança)</option>
+            <option>T. Ma.</option>
+            <option>Auxil. (Auxiliar)</option>
+            <option>Eng. Seg (Engenheiro de Segurança)</option>
+            <option>T. Ho.</option>
+            <option>Bombeiro</option>
+            <option>Tec Manut (Técnico de Manutenção)</option>
+            <option>Tec Manut Planej (Téc. Manut. Planejamento)</option>
+            <option>Aux Manut (Auxiliar de Manutenção)</option>
+            <option>Assist Tec (Assistente Técnico)</option>
+            <option>Tec. Segurança (Técnico de Segurança)</option>
+            <option>Supervisor</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Currículo (PDF, DOC, DOCX — máx. 10 MB)</label>
+          <div class="file-upload-btn" id="cv-btn">
+            <input type="file" accept=".pdf,.doc,.docx" onchange="handleCV(this)">
+            <span class="ico">📋</span>
+            <div class="txt">
+              <strong id="cv-name">Clique para anexar seu currículo</strong>
+              <span>PDF, DOC ou DOCX — máximo 10 MB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost" style="max-width:160px" onclick="go('register')">← Voltar</button>
+          <button class="btn btn-gold" onclick="saveProfile()">✓ Finalizar Candidatura</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: DASHBOARD ════════ -->
+  <div class="screen" id="s-dashboard">
+    <div class="card wide">
+      <div class="dash-hdr">
+        <div class="dash-hi">Olá,</div>
+        <div class="dash-name" id="d-name">Candidato</div>
+        <div id="d-status" class="status-pill pending">
+          <span class="blink"></span> Cadastro recebido — Aguardando análise do RH
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-meta">
+            <span>Completude do perfil</span>
+            <span id="d-pct">0%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="d-pfill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="tabs-row">
+        <button class="tab-btn on" onclick="tab('info')">👤 Minha Candidatura</button>
+        <button class="tab-btn"    onclick="tab('docs')">📁 Documentos</button>
+      </div>
+
+      <!-- TAB: INFO -->
+      <div class="tab-pane on" id="tp-info">
+        <div class="sec-title">Resumo da Candidatura</div>
+        <table class="info-tbl" id="d-info-tbl"></table>
+        <div style="margin-top:22px">
+          <button class="btn btn-ghost" style="max-width:180px" onclick="logout()">Sair da conta</button>
+        </div>
+      </div>
+
+      <!-- TAB: DOCS -->
+      <div class="tab-pane" id="tp-docs">
+        <!-- UNLOCKED by RH code -->
+        <div id="docs-locked">
+          <div class="code-gate">
+            <h3>🔒 Área de Documentos</h3>
+            <p>Esta seção requer um <strong>código de liberação</strong> fornecido pelo RH.<br>
+            Após receber o código, insira abaixo para continuar.</p>
+            <div class="code-input-row">
+              <input id="rh-code-input" type="text" placeholder="XXXX-XXXX" maxlength="9" oninput="fmtCode(this)">
+              <button class="btn btn-blue btn-sm" id="btn-verify-code" onclick="unlockDocs()">Verificar</button>
+            </div>
+            <div class="alert err" id="code-err" style="max-width:340px;margin:12px auto 0"></div>
+          </div>
+        </div>
+
+        <div id="docs-unlocked" style="display:none">
+          <div class="alert ok show" style="margin-bottom:18px">
+            ✅ Área desbloqueada! Faça o upload dos seus documentos pessoais.
+          </div>
+          <p style="font-size:13px;color:var(--subtext);margin-bottom:18px;line-height:1.6">
+            Formatos aceitos: PDF, JPG, PNG — máximo 5 MB por arquivo.
+          </p>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#1E40AF;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:7px;display:inline-block;margin-bottom:10px">📁 Documentos Pessoais</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d01">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d01','dl-d01',this)">
+              <div class="doc-ico">📋</div>
+              <div class="doc-name">Ficha de Cadastro</div>
+              <div class="doc-hint" id="dl-d01">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d02">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d02','dl-d02',this)">
+              <div class="doc-ico">📝</div>
+              <div class="doc-name">Declaracao de Dependentes (IR)</div>
+              <div class="doc-hint" id="dl-d02">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d03">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d03','dl-d03',this)">
+              <div class="doc-ico">🚌</div>
+              <div class="doc-name">Termo de Opcao Vale Transporte</div>
+              <div class="doc-hint" id="dl-d03">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d04">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d04','dl-d04',this)">
+              <div class="doc-ico">🪪</div>
+              <div class="doc-name">Carteira de Identidade (RG)</div>
+              <div class="doc-hint" id="dl-d04">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d05">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d05','dl-d05',this)">
+              <div class="doc-ico">🗂️</div>
+              <div class="doc-name">CPF</div>
+              <div class="doc-hint" id="dl-d05">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d06">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d06','dl-d06',this)">
+              <div class="doc-ico">🗳️</div>
+              <div class="doc-name">Titulo de Eleitor + Comprovante de Votacao</div>
+              <div class="doc-hint" id="dl-d06">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d07">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d07','dl-d07',this)">
+              <div class="doc-ico">💳</div>
+              <div class="doc-name">PIS / Cartao Cidadao ou Espelho</div>
+              <div class="doc-hint" id="dl-d07">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d08">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d08','dl-d08',this)">
+              <div class="doc-ico">👔</div>
+              <div class="doc-name">Carteira de Trabalho Digital (print tela inicial + dados + contratos)</div>
+              <div class="doc-hint" id="dl-d08">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d09">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d09','dl-d09',this)">
+              <div class="doc-ico">🏠</div>
+              <div class="doc-name">Comprovante de Residencia Atualizado (agua/luz/telefone com CEP)</div>
+              <div class="doc-hint" id="dl-d09">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d10">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d10','dl-d10',this)">
+              <div class="doc-ico">🌐</div>
+              <div class="doc-name">Estrangeiro - Processo MTE (data chegada + validade identidade)</div>
+              <div class="doc-hint" id="dl-d10">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#065F46;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#ECFDF5;border:1px solid #6EE7B7;border-radius:7px;display:inline-block;margin-bottom:10px">🎓 Formação Profissional</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d11">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d11','dl-d11',this)">
+              <div class="doc-ico">🎓</div>
+              <div class="doc-name">Historico Escolar Ensino Medio</div>
+              <div class="doc-hint" id="dl-d11">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d12">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d12','dl-d12',this)">
+              <div class="doc-ico">📜</div>
+              <div class="doc-name">Diploma / Graduacao / Certificado</div>
+              <div class="doc-hint" id="dl-d12">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d13">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d13','dl-d13',this)">
+              <div class="doc-ico">🏛️</div>
+              <div class="doc-name">Registro no Conselho de Classe (CREA, MTE, ABO, CRQ etc)</div>
+              <div class="doc-hint" id="dl-d13">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d14">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d14','dl-d14',this)">
+              <div class="doc-ico">🏥</div>
+              <div class="doc-name">Certificado de Regularidade COREN (Nada Consta) - Tec. Enfermagem / Enfermeiro</div>
+              <div class="doc-hint" id="dl-d14">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#9D174D;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#FFF0F6;border:1px solid #F9A8D4;border-radius:7px;display:inline-block;margin-bottom:10px">💊 Saúde</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d15">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d15','dl-d15',this)">
+              <div class="doc-ico">💊</div>
+              <div class="doc-name">Cartao de Assistencia Medica</div>
+              <div class="doc-hint" id="dl-d15">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d16">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d16','dl-d16',this)">
+              <div class="doc-ico">🏨</div>
+              <div class="doc-name">Cartao Nacional de Saude (CNS) - Cartao SUS</div>
+              <div class="doc-hint" id="dl-d16">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;display:inline-block;margin-bottom:10px">🏦 Dados Bancários</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d17">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d17','dl-d17',this)">
+              <div class="doc-ico">🏦</div>
+              <div class="doc-name">Conta Corrente Itau (copia cartao do banco)</div>
+              <div class="doc-hint" id="dl-d17">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#F9FAFB;border:1px solid #D1D5DB;border-radius:7px;display:inline-block;margin-bottom:10px">📎 Outros</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d18">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d18','dl-d18',this)">
+              <div class="doc-ico">⚔️</div>
+              <div class="doc-name">Certificado de Alistamento Militar (homens)</div>
+              <div class="doc-hint" id="dl-d18">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d19">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d19','dl-d19',this)">
+              <div class="doc-ico">🚗</div>
+              <div class="doc-name">Carteira de Habilitacao (CNH)</div>
+              <div class="doc-hint" id="dl-d19">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d20">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d20','dl-d20',this)">
+              <div class="doc-ico">🔍</div>
+              <div class="doc-name">Antecedentes Criminais Regional</div>
+              <div class="doc-hint" id="dl-d20">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d21">
+              <input type="file" accept=".jpg,.jpeg,.png" onchange="uploadDoc('dc-d21','dl-d21',this)">
+              <div class="doc-ico">📷</div>
+              <div class="doc-name">Foto 3x4 JPG fundo branco digitalizada</div>
+              <div class="doc-hint" id="dl-d21">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d22">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d22','dl-d22',this)">
+              <div class="doc-ico">📊</div>
+              <div class="doc-name">Profissionais Liberais (comprovante anuidade + declaracao INSS)</div>
+              <div class="doc-hint" id="dl-d22">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d23">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d23','dl-d23',this)">
+              <div class="doc-ico">💉</div>
+              <div class="doc-name">Cartao de Vacina COVID</div>
+              <div class="doc-hint" id="dl-d23">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d24">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d24','dl-d24',this)">
+              <div class="doc-ico">💉</div>
+              <div class="doc-name">Cartao de Vacina (candidato)</div>
+              <div class="doc-hint" id="dl-d24">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;margin-top:18px">
+            <div style="font-size:11px;font-weight:800;color:#5B21B6;text-transform:uppercase;letter-spacing:.5px;padding:5px 10px;background:#F5F3FF;border:1px solid #C4B5FD;border-radius:7px;display:inline-block;margin-bottom:10px">👨‍👩‍👧 Cônjuge e Filhos</div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-slot" id="dc-d25">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d25','dl-d25',this)">
+              <div class="doc-ico">💍</div>
+              <div class="doc-name">Certidao de Casamento / Divorcio / Uniao Estavel</div>
+              <div class="doc-hint" id="dl-d25">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d26">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d26','dl-d26',this)">
+              <div class="doc-ico">🪪</div>
+              <div class="doc-name">Carteira de Identidade + CPF (conjuge)</div>
+              <div class="doc-hint" id="dl-d26">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d27">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d27','dl-d27',this)">
+              <div class="doc-ico">🏨</div>
+              <div class="doc-name">Cartao Nacional de Saude CNS - Cartao SUS (conjuge)</div>
+              <div class="doc-hint" id="dl-d27">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d28">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d28','dl-d28',this)">
+              <div class="doc-ico">🪪</div>
+              <div class="doc-name">Carteira de Identidade - Filhos</div>
+              <div class="doc-hint" id="dl-d28">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d29">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d29','dl-d29',this)">
+              <div class="doc-ico">🗂️</div>
+              <div class="doc-name">CPF - Filhos (a partir de 0 anos)</div>
+              <div class="doc-hint" id="dl-d29">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d30">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d30','dl-d30',this)">
+              <div class="doc-ico">🏨</div>
+              <div class="doc-name">Cartao Nacional de Saude CNS - Cartao SUS (filhos)</div>
+              <div class="doc-hint" id="dl-d30">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+            <div class="doc-slot" id="dc-d31">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('dc-d31','dl-d31',this)">
+              <div class="doc-ico">💉</div>
+              <div class="doc-name">Cartao de Vacina - Filhos menores de 14 anos</div>
+              <div class="doc-hint" id="dl-d31">Clique para selecionar</div>
+              <div class="doc-tick">✓</div>
+            </div>
+          </div>
+          <div class="alert ok" id="docs-saved-ok" style="margin-top:14px"></div>
+          <div class="btn-row" style="margin-top:16px;max-width:280px">
+            <button class="btn btn-blue" onclick="saveDocs()">✓ Salvar Documentos</button>
+          </div>
+
+          <!-- STATUS DE APROVAÇÃO DOS DOCUMENTOS -->
+          <div class="doc-status-section" id="doc-approval-section" style="display:none">
+            <div class="sec-title">Status de Aprovação dos Documentos</div>
+            <p style="font-size:12.5px;color:var(--subtext);margin-bottom:14px;line-height:1.6">
+              O RH analisa cada documento enviado. Acompanhe o status abaixo.
+            </p>
+            <div id="doc-approval-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: HR LOGIN ════════ -->
+  <div class="screen" id="s-hr-login">
+    <div class="card">
+      <div class="card-top" style="background:linear-gradient(140deg,#0D1B2A,#1A3353)">
+        <div class="card-badge" style="background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.35);color:var(--gold2)">
+          🔑 Acesso Restrito
+        </div>
+        <h1>Painel de Recursos Humanos</h1>
+        <p>Login exclusivo para gestores de RH</p>
+      </div>
+      <div class="card-body">
+        <div class="alert err" id="hr-err"></div>
+        <div class="fld">
+          <label>Usuário RH</label>
+          <input id="hr-user" type="text" placeholder="usuario_rh">
+        </div>
+        <div class="fld">
+          <label>Senha</label>
+          <input id="hr-pass" type="password" placeholder="Senha de acesso">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gold" onclick="doHRLogin()">Acessar Painel RH →</button>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="go('login')">← Portal do Candidato</button>
+        <div class="link-row" style="font-size:11.5px;color:var(--mist)">
+          Credenciais de acesso: <strong>RH / 1234</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: HR DASHBOARD ════════ -->
+  <div class="screen" id="s-hr">
+    <div class="card xl">
+      <div class="hr-top">
+        <div class="hr-badge">⚙️ Painel Administrativo</div>
+        <h1>Gestão de Candidatos</h1>
+        <p>Visualize candidaturas, gere códigos e gerencie documentos</p>
+      </div>
+
+      <div class="tabs-row">
+        <button class="tab-btn on"  onclick="hrTab('candidates')">👥 Candidatos</button>
+        <button class="tab-btn"     onclick="hrTab('codes')">🔑 Códigos RH</button>
+        <button class="tab-btn"     onclick="hrTab('sheets')">📊 Google Sheets</button>
+        <button class="tab-btn"     onclick="hrTab('settings')">⚙️ Configurações</button>
+      </div>
+
+      <!-- HR TAB: CANDIDATES -->
+      <div class="tab-pane on" id="htp-candidates">
+        <div class="stats-row" id="hr-stats"></div>
+        <div class="search-bar">
+          <input id="hr-search" type="text" placeholder="🔍  Buscar por nome, CPF ou função..." oninput="renderCandTable()">
+          <button class="btn btn-blue btn-sm" id="btn-sync" onclick="syncFromSheets()" style="white-space:nowrap;gap:6px">
+            🔄 Sincronizar com Sheets
+          </button>
+        </div>
+        <div class="sec-title">Candidatos Cadastrados</div>
+        <div style="overflow-x:auto">
+          <table class="cand-table" id="cand-tbl">
+            <thead>
+              <tr>
+                <th>Nome</th><th>CPF</th><th>Telefone</th>
+                <th>Função</th><th>Cidade/UF</th>
+                <th>Currículo</th><th>Docs</th><th>Código RH</th><th>Visualizar</th>
+              </tr>
+            </thead>
+            <tbody id="cand-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HR TAB: CODES -->
+      <div class="tab-pane" id="htp-codes">
+        <div class="sec-title">Gerar Código de Liberação de Documentos</div>
+        <p style="font-size:13.5px;color:var(--subtext);margin-bottom:22px;line-height:1.6">
+          Selecione o candidato e gere um código único de 8 dígitos. O candidato deverá inserir esse código
+          no portal para desbloquear a área de envio de documentos pessoais.
+        </p>
+
+        <div class="fld" style="max-width:400px">
+          <label>Selecionar Candidato</label>
+          <select id="code-cand-sel">
+            <option value="">— Selecione um candidato —</option>
+          </select>
+        </div>
+
+        <div class="btn-row" style="max-width:280px">
+          <button class="btn btn-gold" onclick="generateCode()">⚡ Gerar Código</button>
+        </div>
+
+        <div id="generated-code-box" style="display:none;margin-top:22px">
+          <div style="background:#FFFBEB;border:1.5px solid #FCD34D;border-radius:14px;padding:20px 22px;max-width:460px">
+            <div style="font-size:11.5px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">
+              Código Gerado
+            </div>
+            <div class="code-chip" id="gen-code-display" style="font-size:18px;letter-spacing:4px;margin-bottom:10px"></div>
+            <div style="font-size:12.5px;color:#78350F;margin-bottom:16px">
+              Candidato: <strong id="gen-code-cand"></strong><br>
+              <span style="font-size:11.5px;color:#92400E;opacity:.8" id="gen-code-email-lbl"></span>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button class="btn btn-blue btn-sm" style="gap:6px;white-space:nowrap" onclick="sendCodeByEmail()">
+                ✉️ Enviar Código por E-mail
+              </button>
+              <div id="send-code-status" style="font-size:12px;font-weight:700"></div>
+            </div>
+            <div style="font-size:11.5px;color:#92400E;margin-top:12px;opacity:.8">
+              ⚠️ O candidato precisará deste código para desbloquear o envio de documentos.
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-title" style="margin-top:28px">Códigos Gerados</div>
+        <div style="overflow-x:auto">
+          <table class="cand-table" id="codes-tbl">
+            <thead>
+              <tr><th>Candidato</th><th>CPF</th><th>Código</th><th>Gerado em</th><th>Status</th></tr>
+            </thead>
+            <tbody id="codes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HR TAB: GOOGLE SHEETS -->
+      <div class="tab-pane" id="htp-sheets">
+
+        <!-- SHEETS LOCK SCREEN -->
+        <div id="sheets-locked">
+          <div class="code-gate" style="max-width:380px;margin:0 auto">
+            <h3>🔒 Integração Google Sheets</h3>
+            <p>Esta área é protegida por senha.<br>Insira a senha de acesso para continuar.</p>
+            <div class="code-input-row" style="flex-direction:column;gap:10px">
+              <input id="sheets-pass-input" type="password" placeholder="Senha de acesso" style="text-align:left;letter-spacing:normal"
+                onkeydown="if(event.key==='Enter') unlockSheets()">
+              <button class="btn btn-blue btn-sm" onclick="unlockSheets()" style="width:100%">🔓 Acessar</button>
+            </div>
+            <div class="alert err" id="sheets-pass-err" style="max-width:300px;margin:12px auto 0"></div>
+          </div>
+        </div>
+
+        <!-- SHEETS CONTENT (unlocked) -->
+        <div id="sheets-unlocked" style="display:none">
+        <div class="sec-title">Integração com Google Sheets</div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin-bottom:22px">
+          <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:11px;padding:14px 16px">
+            <div style="font-size:20px;margin-bottom:6px">1️⃣</div>
+            <div style="font-size:12px;font-weight:800;color:#1E40AF;margin-bottom:4px">CRIE A PLANILHA</div>
+            <div style="font-size:11.5px;color:#3B82F6;line-height:1.6">Abra o Google Sheets e crie uma planilha nova em branco.</div>
+          </div>
+          <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:11px;padding:14px 16px">
+            <div style="font-size:20px;margin-bottom:6px">2️⃣</div>
+            <div style="font-size:12px;font-weight:800;color:#166534;margin-bottom:4px">ABRA O APPS SCRIPT</div>
+            <div style="font-size:11.5px;color:#16a34a;line-height:1.6">Menu: <strong>Extensões → Apps Script</strong>. Apague o código existente.</div>
+          </div>
+          <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:11px;padding:14px 16px">
+            <div style="font-size:20px;margin-bottom:6px">3️⃣</div>
+            <div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:4px">COLE O SCRIPT</div>
+            <div style="font-size:11.5px;color:#b45309;line-height:1.6">Copie o script abaixo, cole no editor e salve com <strong>Ctrl+S</strong>. O script inclui envio de <strong>e-mail</strong> e <strong>WhatsApp</strong> automático.</div>
+          </div>
+          <div style="background:#FFF0F6;border:1.5px solid #F9A8D4;border-radius:11px;padding:14px 16px">
+            <div style="font-size:20px;margin-bottom:6px">4️⃣</div>
+            <div style="font-size:12px;font-weight:800;color:#9D174D;margin-bottom:4px">PUBLIQUE</div>
+            <div style="font-size:11.5px;color:#be185d;line-height:1.6"><strong>Implantar → Nova implantação → Web App</strong><br>Executar como: <strong>Eu</strong><br>Acesso: <strong>Qualquer pessoa</strong></div>
+          </div>
+          <div style="background:#F5F3FF;border:1.5px solid #C4B5FD;border-radius:11px;padding:14px 16px">
+            <div style="font-size:20px;margin-bottom:6px">5️⃣</div>
+            <div style="font-size:12px;font-weight:800;color:#5B21B6;margin-bottom:4px">COLE A URL AQUI</div>
+            <div style="font-size:11.5px;color:#7C3AED;line-height:1.6">Copie a URL gerada (script.google.com/macros/s/...) e cole abaixo. Clique em <strong>Testar</strong>.</div>
+          </div>
+        </div>
+
+        <!-- WhatsApp activation notice -->
+        <div style="background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start">
+          <div style="font-size:26px;line-height:1">📱</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:800;color:#065F46;margin-bottom:5px">Ativar envio de WhatsApp (CallMeBot — gratuito)</div>
+            <div style="font-size:12px;color:#047857;line-height:1.7">
+              1. Salve o número <strong>+34 644 59 62 99</strong> nos seus contatos (nome: CallMeBot)<br>
+              2. Envie a mensagem: <code style="background:#D1FAE5;padding:1px 6px;border-radius:4px;font-size:11px">I allow callmebot to send me messages</code><br>
+              3. Você receberá sua <strong>APIKEY</strong> por WhatsApp em ~2 minutos<br>
+              4. Cole a APIKEY na variável <code style="background:#D1FAE5;padding:1px 6px;border-radius:4px;font-size:11px">CFG.callmebotApiKey</code> no script abaixo
+            </div>
+          </div>
+        </div>
+
+        <!-- Email notice -->
+        <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;padding:14px 18px;margin-bottom:22px;display:flex;gap:14px;align-items:flex-start">
+          <div style="font-size:26px;line-height:1">✉️</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:800;color:#1E40AF;margin-bottom:5px">E-mail automático (GmailApp — sem configuração extra)</div>
+            <div style="font-size:12px;color:#1d4ed8;line-height:1.7">
+              O script usa <strong>GmailApp</strong> nativo do Google Apps Script — os e-mails são enviados automaticamente pela sua conta Google, sem custo e sem configuração adicional.<br>
+              <span style="color:#6B7280">Limite: ~100 e-mails/dia na conta gratuita.</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="fixed-url-banner" style="display:none;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12.5px;color:#1D4ED8">
+          🔒 <strong>URL fixa configurada no código.</strong> Todos os candidatos enviam para esta planilha automaticamente, sem precisar configurar.
+        </div>
+
+        <div class="fld">
+          <label>URL do Web App (Google Apps Script)</label>
+          <input id="sheets-url" type="text" placeholder="https://script.google.com/macros/s/SEU_ID/exec">
+        </div>
+        <div class="btn-row" style="max-width:300px">
+          <button class="btn btn-blue" id="btn-test-conn" onclick="testSheetsConnection()">🔗 Testar Conexão e Salvar</button>
+        </div>
+        <div class="alert err" id="sheet-err" style="margin-top:12px"></div>
+        <div class="alert ok"  id="sheet-ok"  style="margin-top:12px"></div>
+        <div id="conn-status" style="display:none;margin-top:14px">
+          <div style="background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px">
+            <div style="font-size:24px">✅</div>
+            <div>
+              <div style="font-weight:800;color:#065F46;font-size:13px">Integração Ativa!</div>
+              <div style="font-size:12px;color:#16a34a;margin-top:2px">Candidatos, documentos e códigos são gravados automaticamente nas abas da planilha.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVITY LOG -->
+        <div id="sheets-log-wrap" style="display:none;margin-top:18px">
+          <div style="font-size:11px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">📡 Log de Envios</div>
+          <div id="sheets-log" style="background:#0F172A;border-radius:10px;padding:12px 14px;min-height:40px;max-height:160px;overflow-y:auto;font-family:monospace"></div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:26px;margin-bottom:12px">
+          <div class="sec-title" style="margin-bottom:0">Script Google Apps Script</div>
+          <button class="btn btn-ghost btn-sm" id="btn-copy-script" onclick="copyScript()" style="white-space:nowrap;border-color:#334155;color:#64748B">📋 Copiar Script</button>
+        </div>
+        <div style="background:#0F172A;border-radius:12px;overflow:hidden" id="script-block">
+          <div style="background:#1E293B;padding:8px 14px;border-bottom:1px solid #334155">
+            <span style="font-size:11px;font-weight:700;color:#94A3B8;font-family:monospace">Code.gs — Cole no editor do Apps Script</span>
+          </div>
+<pre style="color:#e2e8f0;font-size:11.5px;line-height:1.75;font-family:monospace;white-space:pre-wrap;padding:16px;margin:0">// PORTAL PREVINE - Google Apps Script
+// Extensoes > Apps Script > apague tudo > cole > Ctrl+S
+// Implantar > Nova implantacao > Web App
+//   Executar como: EU  |  Quem acessa: QUALQUER PESSOA
+//
+// EMAIL: GmailApp (sua conta Google) - sem configuracao extra
+// WHATSAPP: desativado. Para ativar:
+//   1. Obtenha APIKEY no callmebot.com
+//   2. Cole em CFG.whatsapp.apiKey
+//   3. Mude CFG.whatsapp.ativo para true
+
+// ---- CONFIGURACOES -----------------------------------------
+var CFG = {
+  emailRemetente: 'Portal Previne',
+  whatsapp: {
+    ativo:  false,
+    apiKey: 'SUA_APIKEY_AQUI'
+  }
+};
+
+// Mapeamento dc-d01..dc-d31 => nome legivel (cabecalho da planilha)
+var DOC_LABELS = {
+  'dc-d01': 'Ficha de Cadastro',
+  'dc-d02': 'Declaracao de Dependentes (IR)',
+  'dc-d03': 'Termo de Opcao Vale Transporte',
+  'dc-d04': 'Carteira de Identidade (RG)',
+  'dc-d05': 'CPF',
+  'dc-d06': 'Titulo de Eleitor + Comprovante de Votacao',
+  'dc-d07': 'PIS / Cartao Cidadao ou Espelho',
+  'dc-d08': 'Carteira de Trabalho Digital',
+  'dc-d09': 'Comprovante de Residencia Atualizado',
+  'dc-d10': 'Estrangeiro - Processo MTE',
+  'dc-d11': 'Historico Escolar Ensino Medio',
+  'dc-d12': 'Diploma / Graduacao / Certificado',
+  'dc-d13': 'Registro Conselho de Classe',
+  'dc-d14': 'Certificado Regularidade COREN',
+  'dc-d15': 'Cartao de Assistencia Medica',
+  'dc-d16': 'Cartao Nacional de Saude (SUS)',
+  'dc-d17': 'Conta Corrente Itau',
+  'dc-d18': 'Certificado Alistamento Militar',
+  'dc-d19': 'Carteira de Habilitacao (CNH)',
+  'dc-d20': 'Antecedentes Criminais Regional',
+  'dc-d21': 'Foto 3x4 JPG fundo branco',
+  'dc-d22': 'Profissionais Liberais (anuidade + INSS)',
+  'dc-d23': 'Cartao de Vacina COVID',
+  'dc-d24': 'Cartao de Vacina (candidato)',
+  'dc-d25': 'Certidao Casamento / Divorcio / Uniao Estavel',
+  'dc-d26': 'RG + CPF Conjuge',
+  'dc-d27': 'Cartao SUS (conjuge)',
+  'dc-d28': 'Carteira de Identidade - Filhos',
+  'dc-d29': 'CPF - Filhos',
+  'dc-d30': 'Cartao SUS (filhos)',
+  'dc-d31': 'Cartao de Vacina - Filhos menores 14 anos'
+};
+
+var DOC_IDS = ['dc-d01','dc-d02','dc-d03','dc-d04','dc-d05','dc-d06','dc-d07',
+               'dc-d08','dc-d09','dc-d10','dc-d11','dc-d12','dc-d13','dc-d14',
+               'dc-d15','dc-d16','dc-d17','dc-d18','dc-d19','dc-d20','dc-d21',
+               'dc-d22','dc-d23','dc-d24','dc-d25','dc-d26','dc-d27','dc-d28',
+               'dc-d29','dc-d30','dc-d31'];
+
+// ------------------------------------------------------------
+
+function doGet(e) {
+  var cb     = e.parameter.callback || 'cb';
+  var action = e.parameter.action   || '';
+  try {
+    var ss  = SpreadsheetApp.getActiveSpreadsheet();
+    var now = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm:ss');
+
+    // --- SALVAR CREDENCIAIS DO USUARIO (CPF + email + senha) ---
+    if (action === 'addUsuario') {
+      var su2 = sheet(ss, 'Usuarios', ['CPF','Email','Senha','Data'], '#374151');
+      var cpfNorm = normCPF(p(e,'cpf'));
+      // Update if exists, else append
+      var urows = su2.getDataRange().getValues();
+      var ufound = false;
+      for (var ui = 1; ui < urows.length; ui++) {
+        if (normCPF(urows[ui][0]) === cpfNorm) {
+          su2.getRange(ui+1, 1).setValue(cpfNorm);
+          su2.getRange(ui+1, 2).setValue(p(e,'email'));
+          su2.getRange(ui+1, 3).setValue(p(e,'senha'));
+          ufound = true; break;
+        }
+      }
+      if (!ufound) {
+        su2.appendRow([cpfNorm, p(e,'email'), p(e,'senha'), now]);
+      }
+    }
+
+    // --- BUSCAR CREDENCIAIS DE UM USUARIO ---
+    if (action === 'getUsuario') {
+      var su3 = ss.getSheetByName('Usuarios');
+      if (su3) {
+        var urows3 = su3.getDataRange().getValues();
+        var cpfGet = normCPF(p(e,'cpf'));
+        for (var ui3 = 1; ui3 < urows3.length; ui3++) {
+          if (normCPF(urows3[ui3][0]) === cpfGet) {
+            // Also get profile from Candidatos
+            var perfil = {};
+            var sc3 = ss.getSheetByName('Candidatos');
+            if (sc3) {
+              var prows = sc3.getDataRange().getValues();
+              for (var pi = 1; pi < prows.length; pi++) {
+                if (normCPF(prows[pi][1]) === cpfGet) {
+                  perfil = {
+                    nome: String(prows[pi][3]||''), tel: String(prows[pi][4]||''),
+                    rua:  String(prows[pi][5]||''), bairro: String(prows[pi][6]||''),
+                    cidade: String(prows[pi][7]||''), estado: String(prows[pi][8]||''),
+                    cep:  String(prows[pi][9]||''), funcao: String(prows[pi][10]||''),
+                    curriculo: String(prows[pi][11]||''), cpf: String(prows[pi][1]||'')
+                  };
+                  break;
+                }
+              }
+            }
+            // Get docs from Documentos sheet
+            var docsU = {};
+            var sdU = ss.getSheetByName('Documentos');
+            if (sdU && sdU.getLastRow() > 1) {
+              var drowsU = sdU.getDataRange().getValues();
+              for (var dui = 1; dui < drowsU.length; dui++) {
+                if (normCPF(drowsU[dui][1]) === cpfGet) {
+                  for (var dci2 = 4; dci2 < drowsU[0].length && dci2 < drowsU[dui].length; dci2++) {
+                    var fn2 = String(drowsU[dui][dci2]||'');
+                    var si2 = dci2 - 4;
+                    if (fn2 && fn2 !== 'Nao enviado' && si2 < DOC_IDS.length) {
+                      docsU[DOC_IDS[si2]] = { name: fn2 };
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+            var senhaStored = String(urows3[ui3][2]||'').trim();
+            return jsonp(cb, {
+              status: 'ok',
+              found: true,
+              email: String(urows3[ui3][1]||'').trim(),
+              senha: senhaStored,
+              perfil: perfil,
+              docs: docsU
+            });
+          }
+        }
+      }
+      return jsonp(cb, { status: 'ok', found: false });
+    }
+
+    // --- CADASTRO DO CANDIDATO ---
+    if (action === 'addCandidato') {
+      var sc = sheet(ss, 'Candidatos', [
+        'Data/Hora','CPF','E-mail','Nome','Telefone',
+        'Endereco','Bairro','Cidade','Estado','CEP','Funcao','Curriculo'
+      ], '#1565C0');
+      sc.appendRow([now, normCPF(p(e,'cpf')), p(e,'email'), p(e,'nome'), p(e,'tel'),
+        p(e,'rua'), p(e,'bairro'), p(e,'cidade'), p(e,'estado'),
+        p(e,'cep'), p(e,'funcao'), p(e,'curriculo')]);
+
+      var nomeCad   = p(e,'nome');
+      var funcaoCad = p(e,'funcao');
+      var emailCad  = p(e,'email');
+      var telCad    = p(e,'tel');
+
+      var corpoCad = 'Ola, ' + nomeCad + '!\n\n'
+        + 'Seu cadastro foi recebido com sucesso pelo Portal de Vagas Previne.\n\n'
+        + 'Funcao desejada: ' + funcaoCad + '\n'
+        + 'E-mail: '          + emailCad  + '\n'
+        + 'Telefone: '        + telCad    + '\n\n'
+        + 'Em breve nossa equipe de RH analisara seu perfil e entrara em contato.\n\n'
+        + '\n--\n'
+        + 'Este e-mail e enviado automaticamente. Por favor, nao responda.\n'
+        + 'Em caso de duvidas, entre em contato diretamente com o RH da Previne.\n\n'
+        + 'Atenciosamente,\nEquipe Previne\nEngenharia & Gestao de Riscos';
+      enviarEmail(emailCad, 'Cadastro recebido - Portal Previne', corpoCad);
+
+      if (CFG.whatsapp.ativo) {
+        enviarWhatsApp(limparTel(telCad),
+          'Portal Previne\n\nOla, ' + nomeCad + '! Seu cadastro foi recebido.\n'
+          + 'Funcao: ' + funcaoCad + '\nEm breve o RH entrara em contato!');
+      }
+    }
+
+    // --- DOCUMENTOS ENVIADOS ---
+    if (action === 'addDocumentos') {
+      // Build headers: fixed cols + label of each doc slot
+      var hdrs = ['Data/Hora','CPF','Nome','Funcao'];
+      for (var hi = 0; hi < DOC_IDS.length; hi++) {
+        hdrs.push(DOC_LABELS[DOC_IDS[hi]] || DOC_IDS[hi]);
+      }
+      var sd = sheet(ss, 'Documentos', hdrs, '#7C3AED');
+
+      // Build row: for each slot, use filename or 'Nao enviado'
+      var rowData = [now, p(e,'cpf'), p(e,'nome'), p(e,'funcao')];
+      var enviados = [];
+      for (var di = 0; di < DOC_IDS.length; di++) {
+        var fname = p(e, DOC_IDS[di]);
+        rowData.push(fname !== '' ? fname : 'Nao enviado');
+        if (fname !== '') enviados.push(DOC_LABELS[DOC_IDS[di]] + ': ' + fname);
+      }
+      sd.appendRow(rowData);
+
+      // Busca email e tel na aba Candidatos
+      var emailDoc = p(e,'email') || '';
+      var telDoc   = '';
+      var scDoc = ss.getSheetByName('Candidatos');
+      if (scDoc) {
+        var rowsDoc = scDoc.getDataRange().getValues();
+        for (var i = 1; i < rowsDoc.length; i++) {
+          if (String(rowsDoc[i][1]) === p(e,'cpf')) {
+            if (!emailDoc) emailDoc = rowsDoc[i][2];
+            telDoc = rowsDoc[i][4];
+            break;
+          }
+        }
+      }
+
+      var listaEnv = enviados.length > 0 ? enviados.join('\n') : 'Nenhum arquivo identificado';
+
+      if (emailDoc) {
+        var corpoDoc = 'Ola, ' + p(e,'nome') + '!\n\n'
+          + 'Seus documentos foram recebidos com sucesso:\n\n'
+          + listaEnv + '\n\n'
+          + 'Nossa equipe ira analisar cada documento e voce sera notificado sobre o status.\n\n'
+          + '\n--\n'
+          + 'Este e-mail e enviado automaticamente. Por favor, nao responda.\n'
+          + 'Em caso de duvidas, entre em contato diretamente com o RH da Previne.\n\n'
+          + 'Atenciosamente,\nEquipe Previne\nEngenharia & Gestao de Riscos';
+        enviarEmail(emailDoc, 'Documentos recebidos - Portal Previne', corpoDoc);
+      }
+
+      if (CFG.whatsapp.ativo && telDoc) {
+        enviarWhatsApp(limparTel(telDoc),
+          'Portal Previne\n\nOla, ' + p(e,'nome') + '! Seus documentos foram recebidos.\n'
+          + enviados.length + ' arquivo(s) registrado(s).\n\nAguarde a analise do RH.');
+      }
+    }
+
+    // --- ENVIAR CODIGO POR EMAIL ---
+    if (action === 'enviarCodigoPorEmail') {
+      var emailDest = p(e,'email');
+      var nomeDest  = p(e,'nome');
+      var codDest   = p(e,'codigo');
+      if (emailDest && codDest) {
+        var corpoCode = 'Ola, ' + nomeDest + '!\n\n'
+          + 'O RH gerou um codigo de liberacao para voce acessar a area de documentos.\n\n'
+          + 'Seu codigo: ' + codDest + '\n\n'
+          + 'Acesse o portal, va ate a aba Documentos e insira este codigo para desbloquear o envio.\n\n'
+          + '\n--\n'
+          + 'Este e-mail e enviado automaticamente. Por favor, nao responda.\n'
+          + 'Em caso de duvidas, entre em contato diretamente com o RH da Previne.\n\n'
+          + 'Atenciosamente,\nEquipe Previne\nEngenharia & Gestao de Riscos';
+        enviarEmail(emailDest, 'Seu codigo de acesso - Portal Previne', corpoCode);
+      }
+    }
+
+    // --- CODIGO RH GERADO ---
+    if (action === 'addCodigo') {
+      var s3 = sheet(ss, 'Codigos', [
+        'Data/Hora','Candidato','CPF','Codigo','Status'
+      ], '#F59E0B');
+      s3.appendRow([now, p(e,'nome'), p(e,'cpf'), p(e,'codigo'), 'Aguardando uso']);
+    }
+
+    // --- APROVACAO / RECUSA DE DOCUMENTO ---
+    if (action === 'updateDocStatus') {
+      var su = sheet(ss, 'Aprovacoes', [
+        'Data/Hora','CPF','Nome','Documento','Arquivo','Status','Analista'
+      ], '#DC2626');
+      su.appendRow([now, p(e,'cpf'), p(e,'nome'), p(e,'documento'),
+        p(e,'arquivo'), p(e,'status'), 'RH']);
+
+      var emailAp = p(e,'email') || '';
+      if (!emailAp) {
+        var scAp = ss.getSheetByName('Candidatos');
+        if (scAp) {
+          var rowsAp = scAp.getDataRange().getValues();
+          for (var ia = 1; ia < rowsAp.length; ia++) {
+            if (String(rowsAp[ia][1]) === p(e,'cpf')) { emailAp = rowsAp[ia][2]; break; }
+          }
+        }
+      }
+
+      if (emailAp) {
+        var stLabel   = p(e,'status');
+        var isAprov   = (stLabel === 'Aprovado');
+        var prefixo   = isAprov ? '[APROVADO]' : '[RECUSADO]';
+        var resultMsg = isAprov
+          ? 'Parabens! Este documento foi aprovado pelo RH.'
+          : 'Este documento foi recusado. Acesse o portal e reenvie o arquivo correto.';
+        var corpoAp = 'Ola, ' + p(e,'nome') + '!\n\n'
+          + 'O RH analisou um dos seus documentos:\n\n'
+          + 'Documento : ' + p(e,'documento') + '\n'
+          + 'Arquivo   : ' + p(e,'arquivo')   + '\n'
+          + 'Status    : ' + stLabel          + '\n\n'
+          + resultMsg + '\n\n'
+          + 'Em caso de duvidas, entre em contato com o setor de RH.\n\n'
+          + '\n--\n'
+          + 'Este e-mail e enviado automaticamente. Por favor, nao responda.\n'
+          + 'Em caso de duvidas, entre em contato diretamente com o RH da Previne.\n\n'
+          + 'Atenciosamente,\nEquipe Previne\nEngenharia & Gestao de Riscos';
+        enviarEmail(emailAp, prefixo + ' Documento - Portal Previne', corpoAp);
+
+        if (CFG.whatsapp.ativo) {
+          var telAp = '';
+          var scAp2 = ss.getSheetByName('Candidatos');
+          if (scAp2) {
+            var rowsAp2 = scAp2.getDataRange().getValues();
+            for (var ib = 1; ib < rowsAp2.length; ib++) {
+              if (String(rowsAp2[ib][1]) === p(e,'cpf')) { telAp = rowsAp2[ib][4]; break; }
+            }
+          }
+          if (telAp) enviarWhatsApp(limparTel(telAp),
+            'Portal Previne\n\nOla, ' + p(e,'nome') + '!\n'
+            + p(e,'documento') + ': ' + stLabel + '\n' + resultMsg);
+        }
+      }
+    }
+
+    // --- LER CANDIDATOS DA PLANILHA ---
+    if (action === 'getCandidatos') {
+      var result = [];
+      var sc2 = ss.getSheetByName('Candidatos');
+      if (sc2 && sc2.getLastRow() > 1) {
+        var rows = sc2.getDataRange().getValues();
+        // cols: 0=Data, 1=CPF, 2=Email, 3=Nome, 4=Tel, 5=Rua, 6=Bairro, 7=Cidade, 8=Estado, 9=CEP, 10=Funcao, 11=Curriculo
+        for (var ri = 1; ri < rows.length; ri++) {
+          var r = rows[ri];
+          if (!r[1]) continue; // skip empty rows
+          result.push({
+            cpf:      normCPF(r[1]),
+            email:    String(r[2] || ''),
+            nome:     String(r[3] || ''),
+            tel:      String(r[4] || ''),
+            rua:      String(r[5] || ''),
+            bairro:   String(r[6] || ''),
+            cidade:   String(r[7] || ''),
+            estado:   String(r[8] || ''),
+            cep:      String(r[9] || ''),
+            funcao:   String(r[10] || ''),
+            curriculo:String(r[11] || '')
+          });
+        }
+      }
+      // Also get docs counts from Documentos sheet
+      var sdocs = ss.getSheetByName('Documentos');
+      var docsMap = {};
+      if (sdocs && sdocs.getLastRow() > 1) {
+        var drows = sdocs.getDataRange().getValues();
+        var dhdrs = drows[0]; // header row
+        for (var dri = 1; dri < drows.length; dri++) {
+          var dr = drows[dri];
+          var dcpf = String(dr[1] || '');
+          if (!dcpf) continue;
+          if (!docsMap[dcpf]) docsMap[dcpf] = {};
+          // cols 4+ are doc slots (dc-d01..dc-d31)
+          for (var dci = 4; dci < dhdrs.length && dci < dr.length; dci++) {
+            var fname = String(dr[dci] || '');
+            if (fname && fname !== 'Nao enviado' && fname !== '') {
+              // find the slot id from DOC_IDS index
+              var slotIdx = dci - 4;
+              if (slotIdx < DOC_IDS.length) {
+                docsMap[dcpf][DOC_IDS[slotIdx]] = { name: fname };
+              }
+            }
+          }
+        }
+      }
+      // Get approval status from Aprovacoes sheet
+      var saprov = ss.getSheetByName('Aprovacoes');
+      var aprovMap = {};
+      if (saprov && saprov.getLastRow() > 1) {
+        var aprovRows = saprov.getDataRange().getValues();
+        for (var ari = 1; ari < aprovRows.length; ari++) {
+          var ar = aprovRows[ari];
+          var acpf = String(ar[1] || '');
+          var adoc  = String(ar[4] || ''); // arquivo (filename)
+          var astat = String(ar[5] || ''); // status
+          if (!acpf || !adoc) continue;
+          if (!aprovMap[acpf]) aprovMap[acpf] = {};
+          // find slot id by filename
+          for (var asi = 0; asi < DOC_IDS.length; asi++) {
+            if (docsMap[acpf] && docsMap[acpf][DOC_IDS[asi]] && docsMap[acpf][DOC_IDS[asi]].name === adoc) {
+              aprovMap[acpf][DOC_IDS[asi]] = astat === 'Aprovado' ? 'approved' : 'rejected';
+            }
+          }
+        }
+      }
+      // Get codes from Codigos sheet
+      var scod = ss.getSheetByName('Codigos');
+      var codesResult = [];
+      if (scod && scod.getLastRow() > 1) {
+        var crows = scod.getDataRange().getValues();
+        for (var cri = 1; cri < crows.length; cri++) {
+          var cr = crows[cri];
+          codesResult.push({
+            createdAt: String(cr[0] || ''),
+            nome:      String(cr[1] || ''),
+            cpf:       String(cr[2] || ''),
+            codigo:    String(cr[3] || ''),
+            usedAt:    String(cr[4] || '')
+          });
+        }
+      }
+      return jsonp(cb, { status: 'ok', candidatos: result, docs: docsMap, aprovacoes: aprovMap, codigos: codesResult });
+    }
+
+    // --- BUSCAR CODIGO POR VALOR ---
+    if (action === 'getCode') {
+      var scod2 = ss.getSheetByName('Codigos');
+      if (scod2 && scod2.getLastRow() > 1) {
+        var cvals = scod2.getDataRange().getValues();
+        for (var ci2 = 1; ci2 < cvals.length; ci2++) {
+          if (String(cvals[ci2][3]) === p(e,'codigo')) {
+            return jsonp(cb, {
+              status:    'ok',
+              found:     true,
+              cpf:       normCPF(cvals[ci2][2]),
+              nome:      String(cvals[ci2][1]||''),
+              codigo:    String(cvals[ci2][3]||''),
+              createdAt: String(cvals[ci2][0]||''),
+              usedAt:    String(cvals[ci2][4]||'')
+            });
+          }
+        }
+      }
+      return jsonp(cb, { status: 'ok', found: false });
+    }
+
+    // --- MARCAR CODIGO COMO USADO ---
+    if (action === 'usarCodigo') {
+      var s4 = ss.getSheetByName('Codigos');
+      if (s4) {
+        var vals = s4.getDataRange().getValues();
+        for (var iv = 1; iv < vals.length; iv++) {
+          if (vals[iv][3] === p(e,'codigo')) {
+            s4.getRange(iv+1, 5).setValue('Utilizado em ' + now);
+            break;
+          }
+        }
+      }
+    }
+
+    return jsonp(cb, { status: 'ok', action: action });
+  } catch(err) {
+    return jsonp(cb, { status: 'error', msg: err.toString() });
+  }
+}
+
+// --- ENVIO DE E-MAIL ---
+function enviarEmail(destino, assunto, corpo) {
+  try {
+    if (!destino || destino.indexOf('@') === -1) return;
+    GmailApp.sendEmail(destino, assunto, corpo, { name: CFG.emailRemetente });
+  } catch(err) {
+    Logger.log('Erro email: ' + err.toString());
+  }
+}
+
+// --- ENVIO WHATSAPP via CallMeBot ---
+function enviarWhatsApp(numero, mensagem) {
+  try {
+    if (!numero || !CFG.whatsapp.ativo || CFG.whatsapp.apiKey === 'SUA_APIKEY_AQUI') return;
+    var url = 'https://api.callmebot.com/whatsapp.php'
+      + '?phone='  + numero
+      + '&text='   + encodeURIComponent(mensagem)
+      + '&apikey=' + CFG.whatsapp.apiKey;
+    UrlFetchApp.fetch(url);
+  } catch(err) {
+    Logger.log('Erro WhatsApp: ' + err.toString());
+  }
+}
+
+// --- HELPERS ---
+function limparTel(tel) {
+  var d = tel.replace(/[^0-9]/g, '');
+  if (!d) return '';
+  if (d.length === 11) return '55' + d;
+  if (d.length === 10) return '55' + d;
+  return d;
+}
+
+function p(e, k) {
+  var v = e.parameter[k];
+  return (v === undefined || v === 'undefined' || v === null) ? '' : String(v);
+}
+
+// Normalize CPF: strip non-digits, pad to 11 chars with leading zeros
+function normCPF(val) {
+  var s = String(val || '').replace(/[^0-9]/g, '');
+  while (s.length < 11) s = '0' + s;
+  return s;
+}
+
+function jsonp(cb, obj) {
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(obj) + ')')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+// Creates sheet if not exists; always ensures header row is correct
+function sheet(ss, name, headers, color) {
+  var s = ss.getSheetByName(name);
+  if (!s) {
+    s = ss.insertSheet(name);
+    s.appendRow(headers);
+    var hdrRange = s.getRange(1, 1, 1, headers.length);
+    hdrRange.setFontWeight('bold').setBackground(color).setFontColor('#FFFFFF');
+    hdrRange.setWrap(true);
+    s.setFrozenRows(1);
+    s.setRowHeight(1, 40);
+    try { s.autoResizeColumns(1, headers.length); } catch(e) {}
+  } else {
+    // Ensure header row exists and is styled (in case sheet was created before)
+    var existing = s.getRange(1, 1, 1, s.getLastColumn()).getValues()[0];
+    if (!existing[0] || existing[0] === '') {
+      s.insertRowBefore(1);
+      s.getRange(1, 1, 1, headers.length).setValues([headers])
+       .setFontWeight('bold').setBackground(color).setFontColor('#FFFFFF');
+      s.setFrozenRows(1);
+    }
+  }
+  return s;
+}</pre>
+        </div>
+
+        <div class="sec-title" style="margin-top:26px">Exportar Dados (JSON)</div>
+        <p style="font-size:13px;color:var(--subtext);margin-bottom:14px">
+          Baixe os dados da sessão atual para importar manualmente na planilha.
+        </p>
+        <div class="btn-row" style="max-width:260px">
+          <button class="btn btn-emerald" onclick="exportJSON()">⬇ Exportar Candidatos (JSON)</button>
+        </div>
+      </div><!-- /sheets-unlocked -->
+      </div><!-- /htp-sheets -->
+
+      <!-- HR TAB: SETTINGS -->
+      <div class="tab-pane" id="htp-settings">
+        <div class="sec-title">Segurança da Conta RH</div>
+        <div style="max-width:460px">
+          <div style="background:linear-gradient(135deg,#EFF6FF,#F0FDF4);border:1.5px solid #BFDBFE;border-radius:14px;padding:18px 20px;margin-bottom:22px;display:flex;align-items:center;gap:14px">
+            <div style="font-size:30px">🔐</div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:3px">Alterar Senha de Acesso RH</div>
+              <div style="font-size:12px;color:#3B82F6;line-height:1.5">Use uma senha forte com letras e números.</div>
+            </div>
+          </div>
+          <div class="alert err" id="chpass-err"></div>
+          <div class="alert ok"  id="chpass-ok"></div>
+          <div class="fld"><label>Senha Atual</label><input id="cp-current" type="password" placeholder="Digite a senha atual"></div>
+          <div class="fld"><label>Nova Senha</label><input id="cp-new" type="password" placeholder="Mínimo 4 caracteres"></div>
+          <div class="fld"><label>Confirmar Nova Senha</label><input id="cp-confirm" type="password" placeholder="Repita a nova senha"></div>
+          <div class="btn-row" style="max-width:240px">
+            <button class="btn btn-gold" onclick="changeHRPass()">✓ Alterar Senha</button>
+          </div>
+          <div style="padding-top:20px;border-top:1.5px solid var(--fog)">
+            <div class="sec-title">Sessão Atual</div>
+            <div style="background:var(--cloud);border-radius:12px;padding:14px 16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:11.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.3px">Usuário</span>
+                <span style="font-size:13px;font-weight:700;color:var(--text)" id="sess-user">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.3px">Login em</span>
+                <span style="font-size:12.5px;color:var(--subtext)" id="sess-time">—</span>
+              </div>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div style="margin-top:26px;padding-top:20px;border-top:1.5px solid #FEE2E2">
+              <div class="sec-title" style="color:#991B1B">⚠️ Zona de Perigo</div>
+              <p style="font-size:12.5px;color:#B91C1C;margin-bottom:14px;line-height:1.6">
+                Apaga <strong>todos os candidatos, documentos e códigos</strong> salvos no sistema. Esta ação não pode ser desfeita.
+              </p>
+              <button class="btn btn-sm" onclick="openModal('modal-clear-data')"
+                style="background:#FEF2F2;border:1.5px solid #FECACA;color:#991B1B;font-weight:800">
+                🗑️ Limpar Todos os Dados
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page-shell -->
+
+<footer style="text-align:center;padding:18px 20px;background:rgba(13,27,42,.92);border-top:1px solid rgba(255,255,255,.07);backdrop-filter:blur(8px)">
+  <span style="font-size:11.5px;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif">
+    Desenvolvido por <strong style="color:#94A3B8">Rafael Menezes</strong> &amp; <strong style="color:#94A3B8">Danilo Navarro</strong> &mdash; &copy; 2026
+  </span>
+</footer>
+
+<!-- MODAL: Clear all data -->
+<div class="modal-wrap" id="modal-clear-data">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-ico" style="background:linear-gradient(135deg,#DC2626,#EF4444)">🗑️</div>
+    <h2 style="color:#991B1B">Limpar Todos os Dados?</h2>
+    <p style="color:#B91C1C">
+      Esta ação irá apagar <strong>todos os candidatos, documentos, códigos e configurações</strong> salvos no sistema.<br><br>
+      Esta operação <strong>não pode ser desfeita</strong>.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" style="min-width:120px" onclick="closeModal('modal-clear-data')">
+        Cancelar
+      </button>
+      <button class="btn btn-sm" style="min-width:160px;background:#DC2626;color:#fff;border-color:#DC2626;font-weight:800"
+        onclick="clearAllData()">
+        🗑️ Sim, Limpar Tudo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Success -->
+<div class="modal-wrap" id="modal-ok">
+  <div class="modal-box">
+    <div class="modal-ico green">✓</div>
+    <h2>Candidatura Enviada!</h2>
+    <p>
+      Suas informações foram registradas com sucesso.<br>
+      Nossa equipe de RH entrará em contato em breve.<br><br>
+      <strong>Fique atento ao e-mail e telefone cadastrados.</strong>
+    </p>
+    <button class="btn btn-blue btn-sm" style="width:auto;padding:11px 32px" onclick="closeModal('modal-ok');loadDash()">
+      Acessar Meu Painel
+    </button>
+  </div>
+</div>
+
+<!-- MODAL: Forgot password simulation -->
+<div class="modal-wrap" id="modal-forgot">
+  <div class="modal-box">
+    <div class="modal-ico blue">📧</div>
+    <h2>E-mail Enviado!</h2>
+    <p id="modal-forgot-txt">Simulação: a senha seria enviada para o e-mail cadastrado.</p>
+    <button class="btn btn-blue btn-sm" style="width:auto;padding:11px 32px" onclick="closeModal('modal-forgot');go('login')">
+      Ir para o Login
+    </button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DATA STORE (in-memory — substitua por Google Sheets na produção)
+// ════════════════════════════════════════════════
+// ── PERSISTENCE ENGINE ──────────────────────────────────────────
+// Saves DB + RH_CREDS to localStorage on every write.
+// Restores automatically on page load.
+const STORAGE_KEY = 'previne_portal_v2';
+
+function dbSave() {
+  try {
+    // Strip base64 binary data before saving (prevents localStorage quota errors)
+    // Only keep filenames/types — binary data is session-only
+    const usersClean = {};
+    Object.entries(DB.users).forEach(([cpf, u]) => {
+      const docsClean = {};
+      Object.entries(u.docs || {}).forEach(([id, d]) => {
+        docsClean[id] = typeof d === 'object' ? { name: d.name, type: d.type } : d;
+      });
+      const profileClean = u.profile ? { ...u.profile, cvFile: u.profile.cvFile
+        ? { name: u.profile.cvFile.name, type: u.profile.cvFile.type } : null } : null;
+      usersClean[cpf] = { ...u, profile: profileClean, docs: docsClean };
+    });
+    const snap = {
+      users:      usersClean,
+      codes:      DB.codes,
+      sheetsURL:  DB.sheetsURL,
+      sheetsPass: DB.sheetsPass,
+      rhPass:     RH_CREDS.pass,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+  } catch(e) { console.warn('Erro ao salvar localStorage:', e); }
+}
+
+function dbLoad() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const snap = JSON.parse(raw);
+    if (snap.users      && typeof snap.users === 'object')  { DB.users      = snap.users; }
+    if (snap.codes      && typeof snap.codes === 'object')  { DB.codes      = snap.codes; }
+    // URL fixa tem prioridade — só usa a salva se não houver URL fixa definida
+    if (!SHEETS_URL_FIXA && snap.sheetsURL && typeof snap.sheetsURL === 'string') { DB.sheetsURL = snap.sheetsURL; }
+    if (snap.sheetsPass && typeof snap.sheetsPass === 'string') { DB.sheetsPass = snap.sheetsPass; }
+    if (snap.rhPass     && typeof snap.rhPass === 'string')    { RH_CREDS.pass = snap.rhPass; }
+    console.log('[Portal] dbLoad OK — candidatos:', Object.keys(DB.users).length);
+  } catch(e) {
+    console.warn('Erro ao carregar localStorage:', e);
+    // If corrupted, clear it so next save works cleanly
+    try { localStorage.removeItem(STORAGE_KEY); } catch(_){}
+  }
+}
+// ─────────────────────────────────────────────────────────────────
+
+// ════════════════════════════════════════════════
+//  URL FIXA DO GOOGLE SHEETS
+//  Cole aqui a URL do seu Web App para que TODOS
+//  os candidatos (de qualquer máquina) enviem
+//  os dados para a mesma planilha.
+// ════════════════════════════════════════════════
+const SHEETS_URL_FIXA = 'https://script.google.com/macros/s/AKfycbyjnybICgxUgXbDS7kid8eGdX4RijUWG5lIh4vAMgFb2Udl-w6RWyqdyK33DrNhMShs/exec';
+
+const DB = {
+  users: {},    // cpf → { email, pass, profile, docs, codeUnlocked }
+  codes: {},    // code → { cpf, nome, usedAt, createdAt }
+  sheetsURL: SHEETS_URL_FIXA,
+  sheetsPass: '1234'
+};
+
+// RH credentials
+const RH_CREDS = { user: 'RH', pass: '1234' };
+
+let currentCPF  = null;
+let currentCV   = null;  // { name, size }
+let currentDocs = {};
+
+// ════════════════════════════════════════════════
+//  HASH DE SENHA (SHA-256 via Web Crypto API)
+//  Usado apenas para envio ao Google Sheets.
+//  O localStorage mantém a senha original para
+//  login offline rápido.
+// ════════════════════════════════════════════════
+async function hashSenha(texto) {
+  const encoder = new TextEncoder();
+  const data    = encoder.encode(texto);
+  const hashBuf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuf))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+const screens = ['login','forgot','register','profile','dashboard','hr-login','hr'];
+
+function go(name) {
+  screens.forEach(s => {
+    const el = document.getElementById('s-' + s);
+    if(el) el.classList.toggle('show', s === name);
+  });
+}
+
+// ════════════════════════════════════════════════
+//  INPUT MASKS
+// ════════════════════════════════════════════════
+function mCPF(el){
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  el.value = v;
+}
+function mPhone(el){
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  v = v.length<=10 ? v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3')
+                   : v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
+  el.value = v;
+}
+function mCEP(el){
+  let v = el.value.replace(/\D/g,'').slice(0,8);
+  el.value = v.replace(/(\d{5})(\d{0,3})/,'$1-$2');
+}
+function fmtCode(el){
+  let v = el.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,8);
+  if(v.length>4) v = v.slice(0,4)+'-'+v.slice(4);
+  el.value = v;
+}
+
+function rawCPF(cpf){
+  const s = cpf.replace(/\D/g,'');
+  return s.padStart(11,'0'); // ensure 11 digits, preserve leading zeros
+}
+
+// ════════════════════════════════════════════════
+//  ALERTS
+// ════════════════════════════════════════════════
+function err(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.className='alert err show'; }
+function ok(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.className='alert ok show';  }
+function clearAlert(id){ const el=document.getElementById(id); if(el) el.className='alert'; }
+
+// ════════════════════════════════════════════════
+//  REGISTER
+// ════════════════════════════════════════════════
+function doRegister(){
+  clearAlert('reg-err');
+  const cpf   = document.getElementById('r-cpf').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const pass2 = document.getElementById('r-pass2').value;
+
+  if(rawCPF(cpf).length!==11) return err('reg-err','⚠ CPF inválido. Verifique os dígitos.');
+  if(!email.includes('@'))     return err('reg-err','⚠ Digite um e-mail válido.');
+  if(pass.length<6)            return err('reg-err','⚠ Senha deve ter no mínimo 6 caracteres.');
+  if(pass!==pass2)             return err('reg-err','⚠ As senhas não coincidem.');
+  if(DB.users[rawCPF(cpf)])    return err('reg-err','⚠ CPF já cadastrado. Faça login.');
+
+  DB.users[rawCPF(cpf)] = { email, pass, profile: null, docs: {}, codeUnlocked: false };
+  dbSave();
+  currentCPF = rawCPF(cpf);
+  // Salva credenciais no Sheets para login em qualquer maquina
+  if(DB.sheetsURL){
+    postToSheets({ action:'addUsuario', cpf: rawCPF(cpf), email, senha: pass });
+  }
+
+  // Pre-fill CPF on profile
+  document.getElementById('p-cpf').value = cpf;
+  go('profile');
+}
+
+// ════════════════════════════════════════════════
+//  FORGOT PASSWORD
+// ════════════════════════════════════════════════
+function doForgot(){
+  clearAlert('forgot-err'); clearAlert('forgot-ok');
+  const cpf   = rawCPF(document.getElementById('f-cpf').value);
+  const email = document.getElementById('f-email').value.trim();
+  const user  = DB.users[cpf];
+
+  if(!user)                return err('forgot-err','⚠ CPF não encontrado no sistema.');
+  if(user.email !== email) return err('forgot-err','⚠ E-mail não corresponde ao CPF informado.');
+
+  // Simulate email sending
+  document.getElementById('modal-forgot-txt').innerHTML =
+    `✉️ A senha <strong>${user.pass}</strong> seria enviada para <strong>${user.email}</strong>.<br><br>
+     <em style="font-size:12px;color:#64748B">(Em produção, o envio seria feito via SMTP/SendGrid. Nesta demo, a senha é exibida aqui.)</em>`;
+  openModal('modal-forgot');
+}
+
+// ════════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════════
+async function doLogin(){
+  clearAlert('login-err');
+  const cpf  = rawCPF(document.getElementById('l-cpf').value);
+  const pass = document.getElementById('l-pass').value;
+  const user = DB.users[cpf];
+
+  // 1. Encontrado localmente — entra na hora
+  if(user && user.pass === pass){
+    return _finishLogin(cpf);
+  }
+
+  // 2. Nao encontrado localmente — busca no Sheets
+  if(!DB.sheetsURL){
+    return err('login-err','⚠ CPF ou senha incorretos.');
+  }
+
+  const btn = document.querySelector('#s-login .btn-blue');
+  if(btn){ btn.innerHTML='⏳ Verificando...'; btn.disabled=true; }
+
+  try {
+    const res = await postToSheets({ action:'getUsuario', cpf });
+
+    if(res && res.found){
+      // Compara senha diretamente (texto simples)
+      if(res.senha && res.senha !== pass){
+        return err('login-err','⚠ CPF ou senha incorretos.');
+      }
+      // Se nao tem senha no Sheets (cadastro muito antigo), aceita qualquer senha
+      // e salva para proximo login
+      if(!res.senha){
+        postToSheets({ action:'addUsuario', cpf, email: res.email, senha: pass });
+      }
+      _importUserFromSheets(cpf, pass, res);
+      return _finishLogin(cpf);
+    }
+
+    return err('login-err','⚠ CPF não encontrado. Verifique os dados ou crie uma conta.');
+
+  } catch(e){
+    return err('login-err','⚠ Erro de conexão. Verifique sua internet e tente novamente.');
+  } finally {
+    if(btn){ btn.innerHTML='Entrar'; btn.disabled=false; }
+  }
+}
+
+// Importa usuario do Sheets para o DB local
+function _importUserFromSheets(cpf, pass, res){
+  if(!DB.users[cpf]){
+    DB.users[cpf] = { email: res.email, pass, profile: null, docs: {}, codeUnlocked: false, docApproval:{} };
+  }
+  DB.users[cpf].pass  = pass;
+  DB.users[cpf].email = res.email || DB.users[cpf].email;
+  if(res.perfil && res.perfil.nome){
+    DB.users[cpf].profile = { ...res.perfil, cvFile: null };
+  }
+  if(res.docs) Object.assign(DB.users[cpf].docs, res.docs);
+  dbSave();
+}
+
+function _finishLogin(cpf){
+  currentCPF = cpf;
+  resetDocSlots();
+  loadDash();
+  go('dashboard');
+  // Render doc approval status on candidate side
+  renderDocApprovalStatus();
+
+  setNav('user');
+}
+
+function renderDocApprovalStatus(){
+  const user = DB.users[currentCPF];
+  if(!user) return;
+  const docs = user.docs || {};
+  const approval = user.docApproval || {};
+  const section = document.getElementById('doc-approval-section');
+  const list    = document.getElementById('doc-approval-list');
+  if(!section || !list) return;
+
+  const slots = DOCS_SLOTS;
+
+  // Only show section if at least one doc was uploaded
+  const hasDocs = slots.some(s => docs[s.id]);
+  section.style.display = hasDocs ? '' : 'none';
+  if(!hasDocs) return;
+
+  list.innerHTML = slots.map(s => {
+    const doc    = docs[s.id];
+    const fname  = doc ? (typeof doc==='object' ? doc.name : doc) : null;
+    const status = approval[s.id] || (fname ? 'pending' : null);
+    if(!fname) return ''; // skip not uploaded
+
+    const badgeMap = {
+      approved: { cls:'approved', text:'✅ Aprovado' },
+      rejected:  { cls:'rejected',  text:'❌ Recusado — reenvie o documento' },
+      pending:   { cls:'pending',   text:'⏳ Aguardando análise do RH' },
+    };
+    const badge = badgeMap[status] || badgeMap.pending;
+
+    return `<div class="doc-status-row ${badge.cls}">
+      <div class="ds-left">
+        <div class="ds-ico">${s.ico}</div>
+        <div>
+          <div class="ds-label">${s.label}</div>
+          <div class="ds-fname">${fname}</div>
+        </div>
+      </div>
+      <span class="ds-badge ${badge.cls}">${badge.text}</span>
+    </div>`;
+  }).join('');
+}
+
+function logout(){
+  currentCPF = null;
+  resetDocSlots();
+  setNav('public');
+  go('login');
+  // reset locked docs
+  document.getElementById('docs-locked').style.display='';
+  document.getElementById('docs-unlocked').style.display='none';
+  document.getElementById('rh-code-input').value='';
+}
+
+// Clear all doc slot visual states and currentDocs buffer
+function resetDocSlots(){
+  currentDocs = {};
+  DOCS_SLOTS.forEach(s => {
+    const card = document.getElementById(s.id);
+    const lbl  = document.getElementById(s.id.replace('dc-','dl-'));
+    const inp  = card ? card.querySelector('input[type="file"]') : null;
+    if(card){ card.classList.remove('done'); }
+    if(lbl){  lbl.textContent = 'Clique para selecionar'; }
+    if(inp){  inp.value = ''; }
+  });
+}
+
+// ════════════════════════════════════════════════
+//  PROFILE SAVE
+// ════════════════════════════════════════════════
+function handleCV(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(f.size > 10*1024*1024){ alert('Arquivo muito grande. Máximo 10 MB.'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    currentCV = { name: f.name, type: f.type, size: (f.size/1024/1024).toFixed(2)+'MB', data: ev.target.result };
+    document.getElementById('cv-name').textContent = '✓ ' + f.name;
+    document.getElementById('cv-btn').style.borderColor = 'var(--emerald)';
+    document.getElementById('cv-btn').style.background  = '#ECFDF5';
+  };
+  reader.readAsDataURL(f);
+}
+
+function saveProfile(){
+  clearAlert('prof-err');
+  const v = id => document.getElementById(id).value.trim();
+  const nome   = v('p-nome');
+  const cpf    = v('p-cpf');
+  const tel    = v('p-tel');
+  const rua    = v('p-rua');
+  const bairro = v('p-bairro');
+  const cidade = v('p-cidade');
+  const estado = v('p-estado');
+  const cep    = v('p-cep');
+  const funcao = v('p-funcao');
+
+  if(!nome)                     return err('prof-err','⚠ Nome completo obrigatório.');
+  if(rawCPF(cpf).length!==11)   return err('prof-err','⚠ CPF inválido.');
+  if(!tel)                      return err('prof-err','⚠ Telefone obrigatório.');
+  if(!rua)                      return err('prof-err','⚠ Endereço obrigatório.');
+  if(!cidade)                   return err('prof-err','⚠ Cidade obrigatória.');
+  if(!estado)                   return err('prof-err','⚠ Selecione o estado.');
+  if(!funcao)                   return err('prof-err','⚠ Selecione a função desejada.');
+
+  const profile = { nome, cpf, tel, rua, bairro, cidade, estado, cep, funcao,
+                    curriculo: currentCV ? currentCV.name : '',
+                    cvFile: currentCV || null };
+  if(!currentCPF) currentCPF = rawCPF(cpf);
+  if(!DB.users[currentCPF]) DB.users[currentCPF] = { email:'', pass:'', docs:{}, codeUnlocked:false };
+  DB.users[currentCPF].profile = profile;
+  dbSave();
+
+  // Send to Google Sheets if configured
+  if(DB.sheetsURL){
+    postToSheets({
+      action:   'addCandidato',
+      cpf:      rawCPF(cpf),
+      email:    DB.users[currentCPF].email || '',
+      nome:     nome,
+      tel:      tel,
+      rua:      rua,
+      bairro:   bairro,
+      cidade:   cidade,
+      estado:   estado,
+      cep:      cep,
+      funcao:   funcao,
+      curriculo: currentCV ? currentCV.name : '',
+    }).then(res => {
+      if(res && res.status === 'ok'){
+        logSheets('✅ Candidato registrado: ' + nome, 'ok');
+      } else if(res && res.status === 'timeout'){
+        logSheets('⏱ Timeout ao registrar candidato: ' + nome, 'warn');
+      } else if(res && res.status === 'no-url'){
+        logSheets('⚠ URL do Sheets não configurada', 'warn');
+      } else {
+        logSheets('❌ Erro ao registrar candidato: ' + JSON.stringify(res), 'err');
+      }
+    }).catch(e => logSheets('❌ Exceção: ' + String(e), 'err'));
+  } else {
+    logSheets('⚠ Sheets não configurado — candidato salvo apenas localmente', 'warn');
+  }
+
+  openModal('modal-ok');
+}
+
+// ════════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════════
+const DOCS_SLOTS = [
+  { id:'dc-d01', label:'Ficha de Cadastro', ico:'📋', group:'Documentos Pessoais' },
+  { id:'dc-d02', label:'Declaracao de Dependentes (IR)', ico:'📝', group:'Documentos Pessoais' },
+  { id:'dc-d03', label:'Termo de Opcao Vale Transporte', ico:'🚌', group:'Documentos Pessoais' },
+  { id:'dc-d04', label:'Carteira de Identidade (RG)', ico:'🪪', group:'Documentos Pessoais' },
+  { id:'dc-d05', label:'CPF', ico:'🗂️', group:'Documentos Pessoais' },
+  { id:'dc-d06', label:'Titulo de Eleitor + Comprovante de Votacao', ico:'🗳️', group:'Documentos Pessoais' },
+  { id:'dc-d07', label:'PIS / Cartao Cidadao ou Espelho', ico:'💳', group:'Documentos Pessoais' },
+  { id:'dc-d08', label:'Carteira de Trabalho Digital (print tela inicial + dados + contratos)', ico:'👔', group:'Documentos Pessoais' },
+  { id:'dc-d09', label:'Comprovante de Residencia Atualizado (agua/luz/telefone com CEP)', ico:'🏠', group:'Documentos Pessoais' },
+  { id:'dc-d10', label:'Estrangeiro - Processo MTE (data chegada + validade identidade)', ico:'🌐', group:'Documentos Pessoais' },
+  { id:'dc-d11', label:'Historico Escolar Ensino Medio', ico:'🎓', group:'Formacao' },
+  { id:'dc-d12', label:'Diploma / Graduacao / Certificado', ico:'📜', group:'Formacao' },
+  { id:'dc-d13', label:'Registro no Conselho de Classe (CREA, MTE, ABO, CRQ etc)', ico:'🏛️', group:'Formacao' },
+  { id:'dc-d14', label:'Certificado de Regularidade COREN (Nada Consta) - Tec. Enfermagem / Enfermeiro', ico:'🏥', group:'Formacao' },
+  { id:'dc-d15', label:'Cartao de Assistencia Medica', ico:'💊', group:'Saude' },
+  { id:'dc-d16', label:'Cartao Nacional de Saude (CNS) - Cartao SUS', ico:'🏨', group:'Saude' },
+  { id:'dc-d17', label:'Conta Corrente Itau (copia cartao do banco)', ico:'🏦', group:'Dados Bancarios' },
+  { id:'dc-d18', label:'Certificado de Alistamento Militar (homens)', ico:'⚔️', group:'Outros' },
+  { id:'dc-d19', label:'Carteira de Habilitacao (CNH)', ico:'🚗', group:'Outros' },
+  { id:'dc-d20', label:'Antecedentes Criminais Regional', ico:'🔍', group:'Outros' },
+  { id:'dc-d21', label:'Foto 3x4 JPG fundo branco digitalizada', ico:'📷', group:'Outros' },
+  { id:'dc-d22', label:'Profissionais Liberais (comprovante anuidade + declaracao INSS)', ico:'📊', group:'Outros' },
+  { id:'dc-d23', label:'Cartao de Vacina COVID', ico:'💉', group:'Outros' },
+  { id:'dc-d24', label:'Cartao de Vacina (candidato)', ico:'💉', group:'Outros' },
+  { id:'dc-d25', label:'Certidao de Casamento / Divorcio / Uniao Estavel', ico:'💍', group:'Conjuge e Filhos' },
+  { id:'dc-d26', label:'Carteira de Identidade + CPF (conjuge)', ico:'🪪', group:'Conjuge e Filhos' },
+  { id:'dc-d27', label:'Cartao Nacional de Saude CNS - Cartao SUS (conjuge)', ico:'🏨', group:'Conjuge e Filhos' },
+  { id:'dc-d28', label:'Carteira de Identidade - Filhos', ico:'🪪', group:'Conjuge e Filhos' },
+  { id:'dc-d29', label:'CPF - Filhos (a partir de 0 anos)', ico:'🗂️', group:'Conjuge e Filhos' },
+  { id:'dc-d30', label:'Cartao Nacional de Saude CNS - Cartao SUS (filhos)', ico:'🏨', group:'Conjuge e Filhos' },
+  { id:'dc-d31', label:'Cartao de Vacina - Filhos menores de 14 anos', ico:'💉', group:'Conjuge e Filhos' },
+];
+
+function loadDash(){
+  const user = DB.users[currentCPF];
+  if(!user) return;
+  const p = user.profile;
+
+  document.getElementById('d-name').textContent = p ? p.nome : 'Candidato';
+  document.getElementById('nav-username').textContent = p ? p.nome.split(' ')[0] : 'Candidato';
+
+  // Progress
+  const docChecks = DOCS_SLOTS.map(s => user.docs[s.id]);
+  const checks = [p&&p.nome, p&&p.tel, p&&p.rua, p&&p.cidade, p&&p.funcao, p&&p.curriculo, ...docChecks];
+  const pct = Math.round(checks.filter(Boolean).length / checks.length * 100);
+  document.getElementById('d-pfill').style.width = pct+'%';
+  document.getElementById('d-pct').textContent = pct+'%';
+
+  // Info table
+  if(p){
+    const rows = [
+      ['Nome Completo', p.nome], ['CPF', p.cpf], ['E-mail', user.email],
+      ['Telefone', p.tel], ['Endereço', p.rua + (p.bairro?', '+p.bairro:'')],
+      ['Cidade / Estado', p.cidade+' — '+p.estado], ['CEP', p.cep||'—'],
+      ['Função Desejada', p.funcao],
+      ['Currículo', p.curriculo || '— não enviado —'],
+    ];
+    document.getElementById('d-info-tbl').innerHTML =
+      rows.map(([k,v])=>`<tr><td>${k}</td><td>${v||'—'}</td></tr>`).join('');
+  }
+
+  // Status pill
+  const pill = document.getElementById('d-status');
+  if(user.codeUnlocked){
+    pill.className='status-pill approved';
+    pill.innerHTML='<span class="blink"></span> Documentos liberados pelo RH';
+  }
+
+  // Restore unlock state
+  if(user.codeUnlocked){
+    document.getElementById('docs-locked').style.display='none';
+    document.getElementById('docs-unlocked').style.display='';
+  }
+
+  // Restore doc states
+  Object.keys(user.docs).forEach(id => {
+    const card = document.getElementById(id);
+    const lbl  = document.getElementById(id.replace('dc-','dl-'));
+    if(card){ card.classList.add('done'); }
+    if(lbl){ const d=user.docs[id]; lbl.textContent='✓ '+(typeof d==='object'?d.name:d); }
+  });
+
+  // Clear any leftover upload feedback
+  const savedOk = document.getElementById('docs-saved-ok');
+  if(savedOk){ savedOk.className='alert'; savedOk.textContent=''; }
+
+  setNav('user');
+}
+
+// ════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════
+function tab(name){
+  ['info','docs'].forEach(n=>{
+    document.getElementById('tp-'+n).classList.toggle('on', n===name);
+  });
+  document.querySelectorAll('#s-dashboard .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('on', (i===0&&name==='info')||(i===1&&name==='docs'));
+  });
+}
+function unlockSheets(){
+  clearAlert('sheets-pass-err');
+  const val = document.getElementById('sheets-pass-input').value;
+  if(!val) return err('sheets-pass-err','⚠ Insira a senha.');
+  if(val !== DB.sheetsPass) return err('sheets-pass-err','⚠ Senha incorreta.');
+  document.getElementById('sheets-locked').style.display   = 'none';
+  document.getElementById('sheets-unlocked').style.display = '';
+  document.getElementById('sheets-pass-input').value = '';
+}
+
+function hrTab(name){
+  // Re-lock sheets tab whenever navigating away
+  if(name !== 'sheets'){
+    const sl = document.getElementById('sheets-locked');
+    const su = document.getElementById('sheets-unlocked');
+    if(sl && su){ sl.style.display=''; su.style.display='none'; }
+  }
+  ['candidates','codes','sheets','settings'].forEach(n=>{
+    document.getElementById('htp-'+n).classList.toggle('on', n===name);
+  });
+  document.querySelectorAll('#s-hr .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('on', ['candidates','codes','sheets','settings'][i]===name);
+  if(name==='settings') loadSessionInfo();
+  });
+}
+
+// ════════════════════════════════════════════════
+//  DOCUMENT UNLOCK
+// ════════════════════════════════════════════════
+async function unlockDocs(){
+  clearAlert('code-err');
+  const raw = document.getElementById('rh-code-input').value.replace(/[-\s]/g,'').toUpperCase();
+  const fmt = raw.slice(0,4)+'-'+raw.slice(4);
+
+  if(raw.length !== 8) return err('code-err','⚠ Código inválido. Deve ter 8 caracteres.');
+
+  // 1. Try local DB first
+  const localEntry = DB.codes[fmt];
+  if(localEntry){
+    if(localEntry.cpf !== currentCPF) return err('code-err','⚠ Este código não pertence ao seu cadastro.');
+    return _activateDocs(fmt, localEntry);
+  }
+
+  // 2. Not found locally — search Sheets
+  if(!DB.sheetsURL) return err('code-err','⚠ Código não encontrado. Verifique com o RH.');
+
+  const btn = document.getElementById('btn-verify-code');
+  if(btn){ btn.innerHTML='⏳ Verificando...'; btn.disabled=true; }
+
+  try {
+    const res = await postToSheets({ action:'getCode', codigo: fmt });
+    if(res && res.found){
+      if(res.cpf !== currentCPF) return err('code-err','⚠ Este código não pertence ao seu cadastro.');
+      // Import code into local DB
+      DB.codes[fmt] = { cpf: res.cpf, nome: res.nome, createdAt: res.createdAt, usedAt: res.usedAt || null };
+      dbSave();
+      _activateDocs(fmt, DB.codes[fmt]);
+    } else {
+      err('code-err','⚠ Código não encontrado. Verifique com o RH.');
+    }
+  } catch(e){
+    err('code-err','⚠ Erro ao verificar código. Tente novamente.');
+  } finally {
+    if(btn){ btn.innerHTML='Verificar'; btn.disabled=false; }
+  }
+}
+
+function _activateDocs(fmt, entry){
+  entry.usedAt = new Date().toLocaleString('pt-BR');
+  DB.users[currentCPF].codeUnlocked = true;
+  dbSave();
+  if(DB.sheetsURL) postToSheets({ action:'usarCodigo', codigo: fmt });
+  document.getElementById('docs-locked').style.display='none';
+  document.getElementById('docs-unlocked').style.display='';
+  loadDash();
+}
+
+// ════════════════════════════════════════════════
+//  UPLOAD DOCS
+// ════════════════════════════════════════════════
+function uploadDoc(cardId, lblId, input){
+  const f = input.files[0];
+  if(!f) return;
+  if(f.size>5*1024*1024){ alert('Máximo 5 MB por arquivo.'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    document.getElementById(cardId).classList.add('done');
+    document.getElementById(lblId).textContent = '✓ '+f.name;
+    currentDocs[cardId] = { name: f.name, type: f.type, data: ev.target.result };
+  };
+  reader.readAsDataURL(f);
+}
+
+function saveDocs(){
+  const user = DB.users[currentCPF];
+  if(!user) return;
+  const count = Object.keys(currentDocs).length;
+  if(count===0){ alert('Selecione ao menos um documento.'); return; }
+  Object.assign(user.docs, currentDocs);
+  dbSave();
+  // Sync names to Google Sheets
+  if(DB.sheetsURL){
+    const p = user.profile || {};
+    // Build payload: one param per slot with filename (or empty)
+    const payload = {
+      action: 'addDocumentos',
+      cpf:    p.cpf    || currentCPF,
+      nome:   p.nome   || '',
+      funcao: p.funcao || '',
+      email:  user.email || '',
+    };
+    // Add each slot's filename
+    DOCS_SLOTS.forEach(s => {
+      const slotId = s.id; // e.g. "dc-d01"
+      const key    = slotId; // send as "dc-d01"
+      payload[key] = (user.docs[slotId] && user.docs[slotId].name) ? user.docs[slotId].name : '';
+    });
+    postToSheets(payload);
+  }
+
+  // Show success toast
+  showDocsSavedToast(count);
+  loadDash();
+  renderDocApprovalStatus();
+}
+
+// ════════════════════════════════════════════════
+//  DOCS SAVED TOAST
+// ════════════════════════════════════════════════
+function showDocsSavedToast(count){
+  const toast = document.getElementById('toast-docs-saved');
+  const msg   = document.getElementById('toast-docs-msg');
+  if(!toast) return;
+  msg.textContent = count === 1
+    ? '1 documento salvo com sucesso!'
+    : `${count} documentos salvos com sucesso!`;
+  toast.classList.add('toast-show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('toast-show'), 4500);
+}
+
+// ════════════════════════════════════════════════
+//  HR LOGIN
+// ════════════════════════════════════════════════
+function doHRLogin(){
+  clearAlert('hr-err');
+  const u = document.getElementById('hr-user').value.trim();
+  const p = document.getElementById('hr-pass').value;
+  if(u!==RH_CREDS.user || p!==RH_CREDS.pass) return err('hr-err','⚠ Usuário ou senha incorretos.');
+  hrSessionTime = new Date().toLocaleString('pt-BR');
+  go('hr');
+  setNav('hr');
+  // Auto-sync from Sheets on login
+  if(DB.sheetsURL) setTimeout(syncFromSheets, 600);
+  renderHRDash();
+}
+
+function logoutHR(){ setNav('public'); go('login'); }
+
+function clearAllData(){
+  // Reset DB in memory
+  DB.users     = {};
+  DB.codes     = {};
+  // Keep sheetsURL, sheetsPass and RH password
+  // Clear localStorage
+  localStorage.removeItem(STORAGE_KEY);
+  // Re-seed demo data
+  seedDemo();
+  // Close modal and refresh HR view
+  closeModal('modal-clear-data');
+  renderCandTable();
+  renderStats();
+  populateCodeSel();
+  renderCodesTable();
+  // Show feedback
+  const btn = document.querySelector('[onclick="openModal(\'modal-clear-data\')"]');
+  if(btn){ btn.textContent='✅ Dados apagados!'; setTimeout(()=>{ btn.innerHTML='🗑️ Limpar Todos os Dados'; },3000); }
+}
+
+// ════════════════════════════════════════════════
+//  HR DASHBOARD
+// ════════════════════════════════════════════════
+function renderHRDash(){
+  renderStats();
+  renderCandTable();
+  renderCodesTable();
+  populateCodeSel();
+}
+
+function renderStats(){
+  const all   = Object.values(DB.users);
+  const total = all.length;
+  const withDocs = all.filter(u=>Object.keys(u.docs).length>0).length;
+  const unlocked = all.filter(u=>u.codeUnlocked).length;
+  const funcs = [...new Set(all.filter(u=>u.profile).map(u=>u.profile.funcao))].length;
+
+  document.getElementById('hr-stats').innerHTML = [
+    [total,    'Candidatos'],
+    [withDocs, 'Com Documentos'],
+    [unlocked, 'Desbloqueados'],
+    [funcs,    'Funções'],
+  ].map(([n,l])=>`
+    <div class="stat-card">
+      <div class="stat-n">${n}</div>
+      <div class="stat-l">${l}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  SYNC FROM GOOGLE SHEETS
+// ════════════════════════════════════════════════
+async function syncFromSheets(){
+  if(!DB.sheetsURL){
+    showSyncToast('⚠️ Configure a URL do Google Sheets primeiro.', 'warn');
+    return;
+  }
+  const btn = document.getElementById('btn-sync');
+  if(btn){ btn.innerHTML='⏳ Sincronizando...'; btn.disabled=true; }
+
+  try {
+    const res = await postToSheets({ action: 'getCandidatos' });
+
+    if(!res || res.status !== 'ok'){
+      showSyncToast('❌ Erro ao sincronizar: ' + (res ? res.status : 'sem resposta'), 'err');
+      return;
+    }
+
+    const candidatos  = res.candidatos  || [];
+    const docsMap     = res.docs        || {};
+    const aprovMap    = res.aprovacoes  || {};
+    const codigos     = res.codigos     || [];
+    let novos = 0, atualizados = 0;
+
+    // Merge candidates into DB
+    candidatos.forEach(cand => {
+      const cpf = cand.cpf.replace(/\D/g,'');
+      if(!cpf) return;
+      const isNovo = !DB.users[cpf];
+      if(!DB.users[cpf]){
+        DB.users[cpf] = { email: cand.email, pass: '', docs: {}, codeUnlocked: false, docApproval: {} };
+        novos++;
+      } else {
+        atualizados++;
+      }
+      // Always update profile from Sheets (source of truth)
+      DB.users[cpf].email = cand.email || DB.users[cpf].email;
+      DB.users[cpf].profile = {
+        nome: cand.nome, cpf: cand.cpf, tel: cand.tel,
+        rua: cand.rua, bairro: cand.bairro, cidade: cand.cidade,
+        estado: cand.estado, cep: cand.cep, funcao: cand.funcao,
+        curriculo: cand.curriculo, cvFile: null
+      };
+      // Merge docs (filenames only — no binary data)
+      if(docsMap[cpf]){
+        Object.entries(docsMap[cpf]).forEach(([slotId, val]) => {
+          if(!DB.users[cpf].docs[slotId]){
+            DB.users[cpf].docs[slotId] = val;
+          }
+        });
+      }
+      // Merge approval status
+      if(aprovMap[cpf]){
+        if(!DB.users[cpf].docApproval) DB.users[cpf].docApproval = {};
+        Object.entries(aprovMap[cpf]).forEach(([slotId, status]) => {
+          DB.users[cpf].docApproval[slotId] = status;
+        });
+      }
+    });
+
+    // Merge codes
+    codigos.forEach(cod => {
+      if(!cod.codigo) return;
+      const fmt = cod.codigo;
+      if(!DB.codes[fmt]){
+        DB.codes[fmt] = {
+          cpf:       (cod.cpf||'').replace(/\D/g,''),
+          nome:      cod.nome,
+          createdAt: cod.createdAt,
+          usedAt:    cod.usedAt && cod.usedAt !== 'Aguardando uso' ? cod.usedAt : null
+        };
+      }
+    });
+
+    dbSave();
+    renderCandTable();
+    renderStats();
+    populateCodeSel();
+    renderCodesTable();
+    logSheets(`✅ Sincronizado: ${novos} novos, ${atualizados} atualizados`, 'ok');
+    showSyncToast(`✅ Sincronizado! ${novos} novo(s), ${atualizados} atualizado(s).`, 'ok');
+
+  } catch(e){
+    logSheets('❌ Exceção na sincronização: '+String(e), 'err');
+    showSyncToast('❌ Falha na sincronização.', 'err');
+  } finally {
+    if(btn){ btn.innerHTML='🔄 Sincronizar com Sheets'; btn.disabled=false; }
+  }
+}
+
+function showSyncToast(msg, type){
+  const colors = { ok:'linear-gradient(135deg,#059669,#10B981)', warn:'linear-gradient(135deg,#D97706,#F59E0B)', err:'linear-gradient(135deg,#DC2626,#EF4444)' };
+  const t = document.getElementById('toast-sync');
+  const m = document.getElementById('toast-sync-msg');
+  if(!t||!m) return;
+  t.style.background = colors[type] || colors.ok;
+  m.textContent = msg;
+  t.classList.add('toast-show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('toast-show'), 4000);
+}
+
+function renderCandTable(){
+  const q = (document.getElementById('hr-search')||{value:''}).value.toLowerCase();
+  const tbody = document.getElementById('cand-tbody');
+  if(!tbody) return;
+
+  const entries = Object.entries(DB.users)
+    .filter(([cpf,u])=>u.profile)
+    .filter(([cpf,u])=>{
+      const p=u.profile;
+      return !q || p.nome.toLowerCase().includes(q) || cpf.includes(q) || p.funcao.toLowerCase().includes(q);
+    });
+
+  if(entries.length===0){
+    tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--mist)">Nenhum candidato cadastrado ainda.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = entries.map(([cpf,u])=>{
+    const p = u.profile;
+    const code = Object.entries(DB.codes).find(([c,d])=>d.cpf===cpf);
+    const codeChip = code
+      ? `<span class="code-chip" style="font-size:11px;letter-spacing:2px">${code[0]}</span>`
+      : `<button class="btn btn-ghost btn-sm" onclick="prefillCode('${cpf}')">Gerar</button>`;
+    const total     = DOCS_SLOTS.length;                      // 31
+    const docsCount = Object.keys(u.docs).length;
+    const missing   = total - docsCount;
+
+    // Docs status chip
+    let docsChip;
+    if(docsCount === 0){
+      docsChip = `<span class="tag tag-red" title="Nenhum documento enviado">⚠ 0/${total} enviados</span>`;
+    } else if(missing === 0){
+      docsChip = `<span class="tag tag-green" title="Todos os documentos enviados">✅ ${total}/${total} completo</span>`;
+    } else {
+      docsChip = `<span class="tag tag-gold" title="${missing} documento(s) pendente(s)">📄 ${docsCount}/${total} · <strong style="color:#92400E">${missing} faltando</strong></span>`;
+    }
+
+    const viewBtn = docsCount > 0
+      ? `<button class="btn btn-blue btn-sm" onclick="viewCandDocs('${cpf}')">📄 Ver Docs</button>`
+      : `<span style="font-size:11px;color:var(--mist)">Sem docs</span>`;
+    return `<tr>
+      <td><strong>${p.nome}</strong></td>
+      <td style="font-family:monospace;font-size:12px">${p.cpf}</td>
+      <td>${p.tel}</td>
+      <td><span class="tag tag-blue">${p.funcao.split(' ')[0]}</span></td>
+      <td>${p.cidade}/${p.estado}</td>
+      <td>${p.curriculo
+        ? (p.cvFile && p.cvFile.data
+            ? `<button class="btn btn-blue btn-sm" style="gap:5px" onclick="openCV('${cpf}')">📄 ${p.curriculo}</button>`
+            : `<span class="tag tag-green">✓ ${p.curriculo}</span>`)
+        : '<span class="tag tag-red">—</span>'
+      }</td>
+      <td>${docsChip}</td>
+      <td>${codeChip}</td>
+      <td>${viewBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function prefillCode(cpf){
+  hrTab('codes');
+  const sel = document.getElementById('code-cand-sel');
+  sel.value = cpf;
+}
+
+function populateCodeSel(){
+  const sel = document.getElementById('code-cand-sel');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Selecione um candidato —</option>' +
+    Object.entries(DB.users)
+      .filter(([,u])=>u.profile)
+      .map(([cpf,u])=>`<option value="${cpf}">${u.profile.nome} — ${u.profile.cpf}</option>`)
+      .join('');
+}
+
+function generateCode(){
+  const sel = document.getElementById('code-cand-sel');
+  const cpf = sel.value;
+  if(!cpf){ alert('Selecione um candidato.'); return; }
+  const user = DB.users[cpf];
+  if(!user){ alert('Candidato não encontrado.'); return; }
+
+  // Generate unique 8-char code
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code;
+  do { code=Array.from({length:8},()=>chars[Math.floor(Math.random()*chars.length)]).join(''); }
+  while(DB.codes[code.slice(0,4)+'-'+code.slice(4)]);
+
+  const fmt = code.slice(0,4)+'-'+code.slice(4);
+  DB.codes[fmt] = { cpf, nome: user.profile.nome, createdAt: new Date().toLocaleString('pt-BR'), usedAt: null };
+  dbSave();
+
+  document.getElementById('gen-code-display').textContent = fmt;
+  document.getElementById('gen-code-cand').textContent = user.profile.nome;
+  document.getElementById('gen-code-email-lbl').textContent = 'E-mail: ' + (user.email || '—');
+  document.getElementById('send-code-status').textContent = '';
+  document.getElementById('send-code-status').style.color = '';
+  document.getElementById('generated-code-box').style.display='';
+  // Store for email sending
+  document.getElementById('generated-code-box').dataset.cpf   = cpf;
+  document.getElementById('generated-code-box').dataset.code  = fmt;
+
+  // Send to Sheets
+  if(DB.sheetsURL) postToSheets({ action:'addCodigo', cpf, nome:user.profile.nome, codigo: fmt });
+
+  renderCodesTable();
+  renderCandTable();
+  renderStats();
+  populateCodeSel();
+}
+
+// ════════════════════════════════════════════════
+//  HR: SEND CODE BY EMAIL
+// ════════════════════════════════════════════════
+function sendCodeByEmail(){
+  const box   = document.getElementById('generated-code-box');
+  const cpf   = box.dataset.cpf;
+  const code  = box.dataset.code;
+  const status = document.getElementById('send-code-status');
+
+  if(!cpf || !code){ status.textContent='⚠ Gere um código primeiro.'; status.style.color='#EF4444'; return; }
+
+  const user = DB.users[cpf];
+  if(!user){ status.textContent='⚠ Candidato não encontrado.'; status.style.color='#EF4444'; return; }
+
+  const email = user.email || '';
+  const nome  = (user.profile && user.profile.nome) ? user.profile.nome : 'Candidato';
+
+  if(!email || !email.includes('@')){
+    status.textContent='⚠ E-mail do candidato não cadastrado.';
+    status.style.color='#EF4444';
+    return;
+  }
+
+  if(!DB.sheetsURL){
+    status.textContent='⚠ Configure a integração Google Sheets primeiro (aba Google Sheets).';
+    status.style.color='#EF4444';
+    return;
+  }
+
+  status.textContent='⏳ Enviando...';
+  status.style.color='#F59E0B';
+
+  postToSheets({
+    action: 'enviarCodigoPorEmail',
+    cpf,
+    email,
+    nome,
+    codigo: code,
+  }).then(() => {
+    status.textContent = '✅ E-mail enviado para ' + email;
+    status.style.color = '#10B981';
+  }).catch(() => {
+    status.textContent = '❌ Falha ao enviar. Verifique a integração.';
+    status.style.color = '#EF4444';
+  });
+}
+
+function renderCodesTable(){
+  const tbody = document.getElementById('codes-tbody');
+  if(!tbody) return;
+  const entries = Object.entries(DB.codes);
+  if(entries.length===0){
+    tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--mist)">Nenhum código gerado ainda.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = entries.map(([code,d])=>`
+    <tr>
+      <td><strong>${d.nome}</strong></td>
+      <td style="font-family:monospace;font-size:12px">${DB.users[d.cpf]?.profile?.cpf||d.cpf}</td>
+      <td><span class="code-chip">${code}</span></td>
+      <td>${d.createdAt}</td>
+      <td>${d.usedAt
+        ? `<span class="tag tag-green">✓ Usado em ${d.usedAt}</span>`
+        : `<span class="tag tag-gold">Aguardando</span>`}</td>
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  GOOGLE SHEETS INTEGRATION
+// ════════════════════════════════════════════════
+function saveSheetURL(){
+  DB.sheetsURL = document.getElementById('sheets-url').value.trim();
+  ok('sheet-ok', '✅ URL salva!');
+  setTimeout(()=>clearAlert('sheet-ok'), 3000);
+}
+
+async function testSheetsConnection(){
+  clearAlert('sheet-err'); clearAlert('sheet-ok');
+  const url = document.getElementById('sheets-url').value.trim();
+  if(!url){ err('sheet-err','⚠ Cole a URL do Web App primeiro.'); return; }
+  if(!url.includes('script.google.com')){ err('sheet-err','⚠ URL inválida — deve ser do Google Apps Script.'); return; }
+  const btn = document.getElementById('btn-test-conn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Testando...'; btn.disabled = true;
+  DB.sheetsURL = url;
+  try {
+    const res = await postToSheets({ action: 'ping' });
+    if(res && res.status === 'ok'){
+      const cs = document.getElementById('conn-status'); if(cs) cs.style.display='';
+      dbSave();
+      logSheets('✅ Conexão testada e URL salva com sucesso', 'ok');
+      ok('sheet-ok','✅ Conexão confirmada! Cadastros e documentos serão gravados automaticamente.');
+      setTimeout(()=>clearAlert('sheet-ok'), 8000);
+    } else if(res && res.status === 'timeout'){
+      DB.sheetsURL='';
+      err('sheet-err','⚠ Tempo esgotado. Verifique: URL correta, Web App publicado com acesso "Qualquer pessoa" e script autorizado.');
+    } else {
+      DB.sheetsURL=''; err('sheet-err','⚠ Resposta inesperada: '+JSON.stringify(res));
+    }
+  } catch(e){ DB.sheetsURL=''; err('sheet-err','⚠ Erro: '+(e&&e.message?e.message:String(e))); }
+  btn.innerHTML = orig; btn.disabled = false;
+}
+
+// JSONP — única técnica que funciona com Google Apps Script sem backend proxy
+function postToSheets(data) {
+  if (!DB.sheetsURL) return Promise.resolve({status:'no-url'});
+  return new Promise((resolve) => {
+    const params = new URLSearchParams();
+    Object.entries(data).forEach(([k,v]) => { params.set(k, (v === null || v === undefined) ? '' : String(v)); });
+    const cbName = '_gas_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    params.set('callback', cbName);
+    const script = document.createElement('script');
+    script.src = DB.sheetsURL + '?' + params.toString();
+    const timer = setTimeout(() => { cleanup(); resolve({status:'timeout'}); logSheets('⏱ Timeout — '+data.action, 'warn'); }, 8000);
+    window[cbName] = (res) => { cleanup(); resolve(res); logSheets('✅ OK — '+data.action, 'ok'); };
+    function cleanup(){ clearTimeout(timer); delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); }
+    script.onerror = (e) => { cleanup(); resolve({status:'error'}); logSheets('❌ Erro de rede — '+data.action, 'err'); };
+    document.head.appendChild(script);
+  });
+}
+
+// Log Sheets activity to diagnostic panel
+function logSheets(msg, type){
+  const box  = document.getElementById('sheets-log');
+  const wrap = document.getElementById('sheets-log-wrap');
+  if(!box) return;
+  if(wrap) wrap.style.display = '';
+  const d = new Date().toLocaleTimeString('pt-BR');
+  const colors = { ok:'#10B981', warn:'#F59E0B', err:'#EF4444' };
+  const line = document.createElement('div');
+  line.style.cssText = `font-size:11.5px;padding:4px 0;border-bottom:1px solid #1E293B;color:${colors[type]||'#94A3B8'}`;
+  line.textContent = `[${d}] ${msg}`;
+  box.prepend(line);
+  while(box.children.length > 20) box.removeChild(box.lastChild);
+}
+
+function exportJSON(){
+  const data = Object.entries(DB.users)
+    .filter(([,u])=>u.profile)
+    .map(([cpf,u])=>({ cpf, email: u.email, ...u.profile, docs: u.docs, codeUnlocked: u.codeUnlocked }));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'candidatos_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+// ════════════════════════════════════════════════
+//  MODALS
+// ════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ════════════════════════════════════════════════
+//  TOPBAR NAV STATE
+// ════════════════════════════════════════════════
+function setNav(state){
+  document.getElementById('nav-public').style.display = state==='public' ? '' : 'none';
+  document.getElementById('nav-user').style.display   = state==='user'   ? '' : 'none';
+  document.getElementById('nav-hr').style.display     = state==='hr'     ? '' : 'none';
+}
+
+// ════════════════════════════════════════════════
+//  SEED DEMO DATA (so HR panel has something to show)
+// ════════════════════════════════════════════════
+function seedDemo(){
+  // Sem dados de demonstração
+}
+seedDemo();   // sem dados demo
+dbLoad();     // restaura dados reais do localStorage
+// If HR panel is open, refresh it after load
+if(document.getElementById('s-hr') && document.getElementById('s-hr').classList.contains('show')){
+  renderHRDash();
+}
+
+// Restore sheets URL field if saved
+(function(){
+  const inp    = document.getElementById('sheets-url');
+  const banner = document.getElementById('fixed-url-banner');
+  const cs     = document.getElementById('conn-status');
+  const activeURL = DB.sheetsURL;
+  if(inp && activeURL){
+    inp.value = activeURL;
+    if(cs) cs.style.display = '';
+  }
+  if(banner && SHEETS_URL_FIXA){
+    banner.style.display = '';
+  }
+})();
+
+// ════════════════════════════════════════════════
+//  CHANGE HR PASSWORD
+// ════════════════════════════════════════════════
+let hrSessionTime = null;
+function loadSessionInfo(){
+  const su = document.getElementById('sess-user');
+  const st = document.getElementById('sess-time');
+  if(su) su.textContent = RH_CREDS.user;
+  if(st) st.textContent = hrSessionTime || '—';
+}
+function changeHRPass(){
+  clearAlert('chpass-err'); clearAlert('chpass-ok');
+  const cur = document.getElementById('cp-current').value;
+  const nw  = document.getElementById('cp-new').value;
+  const con = document.getElementById('cp-confirm').value;
+  if(!cur)              return err('chpass-err','⚠ Informe a senha atual.');
+  if(cur!==RH_CREDS.pass) return err('chpass-err','⚠ Senha atual incorreta.');
+  if(nw.length < 4)     return err('chpass-err','⚠ Nova senha deve ter pelo menos 4 caracteres.');
+  if(nw!==con)          return err('chpass-err','⚠ As senhas não coincidem.');
+  if(nw===cur)          return err('chpass-err','⚠ A nova senha deve ser diferente da atual.');
+  RH_CREDS.pass = nw;
+  dbSave();
+  ['cp-current','cp-new','cp-confirm'].forEach(id=>document.getElementById(id).value='');
+  ok('chpass-ok','✅ Senha alterada com sucesso!');
+  setTimeout(()=>clearAlert('chpass-ok'),4000);
+}
+
+// ════════════════════════════════════════════════
+//  COPY SCRIPT TO CLIPBOARD
+// ════════════════════════════════════════════════
+function copyScript(){
+  const pre = (document.getElementById('script-block')||{}).querySelector('pre');
+  if(!pre){ alert('Script não encontrado.'); return; }
+  const txt = pre.textContent;
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+    .catch(()=>{ const t=document.createElement('textarea'); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); });
+  const btn = document.getElementById('btn-copy-script');
+  if(btn){ btn.textContent='✅ Copiado!'; setTimeout(()=>{ btn.textContent='📋 Copiar Script'; },2500); }
+}
+
+// ════════════════════════════════════════════════
+//  HR: OPEN CURRICULUM
+// ════════════════════════════════════════════════
+function openCV(cpf){
+  const user = DB.users[cpf];
+  if(!user || !user.profile) return;
+  const cv = user.profile.cvFile;
+  if(!cv || !cv.data){ alert('Arquivo não disponível — o candidato precisará reenviar o currículo.'); return; }
+  const win = window.open('','_blank');
+  if(!win){ alert('Permita pop-ups para abrir o currículo.'); return; }
+  if(cv.type && cv.type.startsWith('image/')){
+    win.document.write(`<!DOCTYPE html><html><head><title>${cv.name}</title>
+      <style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}
+      img{max-width:96vw;max-height:96vh;object-fit:contain;border-radius:6px}</style>
+      </head><body><img src="${cv.data}"></body></html>`);
+  } else {
+    win.document.write(`<!DOCTYPE html><html><head><title>${cv.name}</title>
+      <style>body{margin:0}iframe{width:100vw;height:100vh;border:none}</style>
+      </head><body><iframe src="${cv.data}"></iframe></body></html>`);
+  }
+  win.document.close();
+}
+
+// ════════════════════════════════════════════════
+//  HR: APPROVE / REJECT DOCUMENT
+// ════════════════════════════════════════════════
+function setDocApproval(cpf, slotId, status){
+  const user = DB.users[cpf];
+  if(!user) return;
+  if(!user.docApproval) user.docApproval = {};
+  user.docApproval[slotId] = status;
+  dbSave();
+
+  // Sync to Sheets
+  if(DB.sheetsURL){
+    const p = user.profile || {};
+    const doc = user.docs[slotId] || {};
+    const fname = typeof doc === 'object' ? doc.name : doc;
+    const slotObj = DOCS_SLOTS.find(s => s.id === slotId);
+    const slotLabel = slotObj ? slotObj.label : slotId;
+    postToSheets({
+      action:    'updateDocStatus',
+      cpf:       p.cpf    || cpf,
+      nome:      p.nome   || '',
+      email:     user.email || '',
+      documento: slotLabel,
+      arquivo:   fname || '',
+      status:    status === 'approved' ? 'Aprovado' : 'Recusado',
+    });
+  }
+
+  // Re-render the modal row in-place
+  viewCandDocs(cpf);
+
+  // Visual feedback toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.28);animation:fadeIn .2s ease';
+  toast.style.background = status === 'approved' ? '#10B981' : '#EF4444';
+  toast.textContent = status === 'approved' ? '✅ Documento aprovado!' : '❌ Documento recusado!';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
+}
+
+// ════════════════════════════════════════════════
+//  HR: VIEW CANDIDATE DOCUMENTS
+// ════════════════════════════════════════════════
+function viewCandDocs(cpf){
+  const user = DB.users[cpf];
+  if(!user) return;
+  const p = user.profile || {};
+  const docs = user.docs || {};
+  document.getElementById('modal-docs-name').textContent = p.nome || cpf;
+
+  const slots = DOCS_SLOTS;
+
+  const body = document.getElementById('modal-docs-body');
+  if(!body) return;
+
+  body.innerHTML = slots.map(s => {
+    const doc    = docs[s.id];
+    const fname  = doc ? (typeof doc==='object' ? doc.name : doc) : null;
+    const hasData= doc && typeof doc==='object' && doc.data;
+    const isImg  = hasData && doc.type && doc.type.startsWith('image/');
+    const isPdf  = hasData && doc.type === 'application/pdf';
+
+    const approval = (DB.users[cpf].docApproval || {})[s.id] || (fname ? 'pending' : null);
+    const approvalBadge = approval === 'approved'
+      ? `<span style="font-size:10.5px;font-weight:800;color:#065F46;background:#D1FAE5;padding:2px 8px;border-radius:10px;white-space:nowrap">✅ Aprovado</span>`
+      : approval === 'rejected'
+      ? `<span style="font-size:10.5px;font-weight:800;color:#991B1B;background:#FEE2E2;padding:2px 8px;border-radius:10px;white-space:nowrap">❌ Recusado</span>`
+      : fname
+      ? `<span style="font-size:10.5px;font-weight:800;color:#92400E;background:#FEF3C7;padding:2px 8px;border-radius:10px;white-space:nowrap">⏳ Pendente</span>`
+      : '';
+
+    let actionBtns = '';
+    if(!fname){
+      actionBtns = `<span class="dv-vbtn none">Não enviado</span>`;
+    } else {
+      actionBtns = `<div class="dv-actions">
+        ${hasData ? `<button class="dv-vbtn active" onclick="previewDoc('${cpf}','${s.id}')">🔍 Visualizar</button>` : `<span class="dv-vbtn none">Sem prévia</span>`}
+        <button class="dv-vbtn dv-approve" onclick="setDocApproval('${cpf}','${s.id}','approved')">✓ Aprovar</button>
+        <button class="dv-vbtn dv-reject"  onclick="setDocApproval('${cpf}','${s.id}','rejected')">✗ Recusar</button>
+      </div>`;
+    }
+
+    return `<div class="dv-row ${fname?'has-file':'no-file'}" id="dv-row-${s.id.replace('dc-','')}">
+      <div class="dv-left">
+        <div class="dv-ico">${s.ico}</div>
+        <div>
+          <div class="dv-label">${s.label} ${approvalBadge}</div>
+          <div class="dv-fname">${fname ? '✓ '+fname : 'Aguardando envio'}</div>
+        </div>
+      </div>${actionBtns}</div>`;
+  }).join('');
+
+  const count = slots.filter(s=>docs[s.id]).length;
+  body.innerHTML += `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--fog);display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:12px;color:var(--subtext)">${count} de 4 documentos enviados</span>
+    <div style="display:flex;gap:4px">${[0,1,2,3].map(i=>`<div style="width:26px;height:5px;border-radius:3px;background:${i<count?'#10B981':'var(--fog)'}"></div>`).join('')}</div>
+  </div>`;
+
+  openModal('modal-docs');
+}
+
+function previewDoc(cpf, slotId){
+  const user = DB.users[cpf];
+  if(!user) return;
+  const doc = user.docs[slotId];
+  if(!doc || !doc.data){ alert('Arquivo não disponível para prévia.'); return; }
+  const win = window.open('','_blank');
+  if(!win){ alert('Permita pop-ups para visualizar o arquivo.'); return; }
+  if(doc.type && doc.type.startsWith('image/')){
+    win.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title>
+      <style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}
+      img{max-width:96vw;max-height:96vh;object-fit:contain;border-radius:6px}</style>
+      </head><body><img src="${doc.data}"></body></html>`);
+  } else {
+    win.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title>
+      <style>body{margin:0}iframe{width:100vw;height:100vh;border:none}
+/* ── DOC VIEWER ── */
+.dv-row{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border:1.5px solid var(--fog);border-radius:11px;margin-bottom:9px;background:var(--cloud);transition:all .18s}
+.dv-row.has-file{border-color:#10B981;background:#ECFDF5}
+.dv-row.no-file{opacity:.6}
+.dv-row:hover.has-file{border-color:#059669;background:#D1FAE5}
+.dv-left{display:flex;align-items:center;gap:11px}
+.dv-ico{font-size:22px}
+.dv-label{font-size:13px;font-weight:700;color:var(--text)}
+.dv-fname{font-size:11px;color:var(--subtext);margin-top:1px}
+.dv-vbtn{padding:5px 13px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.dv-vbtn.active{background:var(--blue2);color:#fff}
+.dv-vbtn.active:hover{background:#1e88e5}
+.dv-vbtn.none{background:var(--fog);color:var(--slate);cursor:default}
+/* ── DOC APPROVAL BADGES ── */
+.doc-status-section{margin-top:22px;padding-top:18px;border-top:1.5px solid var(--fog)}
+.doc-status-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:10px;margin-bottom:8px;border:1.5px solid var(--fog);background:var(--cloud)}
+.doc-status-row.approved{border-color:#10B981;background:#ECFDF5}
+.doc-status-row.rejected{border-color:#EF4444;background:#FEF2F2}
+.doc-status-row.pending{border-color:#F59E0B;background:#FFFBEB}
+.ds-left{display:flex;align-items:center;gap:10px}
+.ds-ico{font-size:20px}
+.ds-label{font-size:12.5px;font-weight:700;color:var(--text)}
+.ds-fname{font-size:11px;color:var(--subtext);margin-top:1px}
+.ds-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.2px;white-space:nowrap}
+.ds-badge.approved{background:#D1FAE5;color:#065F46}
+.ds-badge.rejected{background:#FEE2E2;color:#991B1B}
+.ds-badge.pending{background:#FEF3C7;color:#92400E}
+/* RH approve/reject buttons */
+.dv-approve{background:#10B981;color:#fff}
+.dv-approve:hover{background:#059669}
+.dv-reject{background:#EF4444;color:#fff}
+.dv-reject:hover{background:#DC2626}
+.dv-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+</style>
+      </head><body><iframe src="${doc.data}"></iframe></body></html>`);
+  }
+  win.document.close();
+}
+
+// INIT
+go('login');
+setNav('public');
+</script>
+
+<!-- MODAL: Doc Viewer RH -->
+<div class="modal-wrap" id="modal-docs">
+  <div class="modal-box" style="max-width:600px;padding:0;overflow:hidden;text-align:left;display:flex;flex-direction:column;max-height:88vh">
+    <div style="background:linear-gradient(135deg,#0D1B2A,#1B3A6B);padding:20px 26px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <div>
+        <div style="font-size:10.5px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Documentos Anexados</div>
+        <div style="font-size:16px;font-weight:800;color:#fff" id="modal-docs-name">—</div>
+      </div>
+      <button onclick="closeModal('modal-docs')" style="background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:17px;line-height:1">×</button>
+    </div>
+    <div style="padding:22px 26px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:#CBD5E1 #F1F5F9" id="modal-docs-body"></div>
+  </div>
+</div>
+
+<!-- SYNC TOAST -->
+<div id="toast-sync" style="
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:linear-gradient(135deg,#059669,#10B981);
+  color:#fff;border-radius:16px;padding:14px 24px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.25);
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+  z-index:10000;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;
+  opacity:0;pointer-events:none;white-space:nowrap;font-size:14px;
+">
+  <span id="toast-sync-msg"></span>
+</div>
+
+<!-- DOCS SAVED TOAST -->
+<div id="toast-docs-saved" style="
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:linear-gradient(135deg,#059669,#10B981);
+  color:#fff;border-radius:16px;padding:16px 28px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 8px 32px rgba(16,185,129,.35);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;
+  z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;
+  opacity:0;pointer-events:none;white-space:nowrap;
+">
+  <div style="font-size:28px;line-height:1">✅</div>
+  <div>
+    <div id="toast-docs-msg" style="font-size:15px;font-weight:800"></div>
+    <div style="font-size:12px;font-weight:500;opacity:.85;margin-top:2px">Seus documentos foram registrados com sucesso.</div>
+  </div>
+</div>
+<style>
+  #toast-docs-saved.toast-show { transform:translateX(-50%) translateY(0); opacity:1; }
+</style>
+
+</body>
+</html>
